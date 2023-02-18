@@ -1,0 +1,166 @@
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
+
+import "https://deno.land/std@0.177.0/dotenv/load.ts";
+import deploy from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/deploy.ts"
+import logs from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/logs.ts"
+import { API, APIError } from "https://raw.githubusercontent.com/denoland/deployctl/main/src/utils/api.ts"
+import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
+import { API as StudioAPI } from "./api_studio.js";
+import { API as DenoAPI } from "./api_deno.js";
+import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+
+
+async function exists(path) {
+    try {
+        return (await Deno.stat(path)).isFile;
+    } catch {
+        return false;
+    }
+}
+
+
+async function writeJson(filePath, o) {
+    await Deno.writeTextFile(filePath, JSON.stringify(o, null, 4));
+}
+
+async function getJson(filePath) {
+    return JSON.parse(await Deno.readTextFile(filePath));
+}
+
+//const args = parseArgs(Deno.args)
+
+//const ref = args._[0]
+//const token = args._[1]
+
+export default async function _init(args) {
+
+    let configFile = `./tictapp.json`
+    let config = {}
+
+    if ((await exists(configFile)))
+        config = await getJson(configFile)
+
+
+    try {
+        const token = prompt(`
+
+Enter your access token 
+Generate one at https://tictapp.studio/account/tokens
+(token) =`, config.token);
+
+        const api = StudioAPI.fromToken(token)
+        const profile = await api.requestJson(`/profile`)
+
+        if (profile.error) {
+            console.error(`
+    Error ${profile.error.status} ${profile.error.name}
+    ${profile.error.message}
+    
+    bye ;)
+
+    `)
+
+            Deno.exit()
+        }
+
+        config.token = token
+        config.profile = profile
+
+        await writeJson(configFile, config)
+
+        const projects = await api.requestJson(`/projects`)
+
+        const projectsList = projects.map(p => {
+            return {
+                name: p.name,
+                ref: p.ref,
+                //endpoint: p.endpoint,
+                status: p.status,
+                created: p.inserted_at
+            }
+        })
+
+        //console.log('init', { token, profile, projects })
+
+        console.table(projectsList)
+
+        const project_ref = prompt(`
+Set your project ref
+(project.ref) =`, config.project?.ref)
+
+        const project = await api.requestJson(`/projects/${project_ref}?_data`)
+
+        if (project.error) {
+            console.error(`
+    Api Error (/projects/${project_ref}) 
+    ${project.error.status || project.error.code} ${project.error.name}
+    ${project.error.message}
+    
+    bye ;)
+
+    `)
+            Deno.exit()
+        }
+
+        config.project = { ...project, auth_config: {} }
+
+        await writeJson(configFile, config)
+
+        const deno_deploy_token = prompt(`Deno deploy token:`, config.deno_deploy_token)
+        config.deno_deploy_token = deno_deploy_token
+
+        await writeJson(configFile, config)
+
+        const deno_deploy_org = prompt(`Deno deploy organization id:`, config.deno_deploy_org)
+        config.deno_deploy_org = deno_deploy_org
+
+        await writeJson(configFile, config)
+
+        console.log(config)
+
+    } catch (e) {
+        console.log(`[init]`, e)
+    }
+
+}
+
+
+// const studioAPI = StudioAPI.fromToken(Deno.env.get('TOKEN'))
+// const project = await studioAPI.requestJson(`/projects/${Deno.env.get('PROJECT')}?_data`)
+
+// const opts = {
+//     token: 'ddp_ebahKKeZqiZVeOad7KJRHskLeP79Lf0OJXlj',
+//     project: `${project.ref}-${name}`
+// }
+
+
+// const denoAPI = DenoAPI.fromToken(opts.token);
+
+// const func = await denoAPI.getProject(opts.project);
+
+// if (func === null) {
+
+//     console.log('func doesnt exists')
+
+// } else {
+
+//     const res = await denoAPI.requestJson(`/projects/${func.id}/env`, {
+//         method: 'PATCH',
+//         body: envVars
+
+//         // body: {
+//         //     "SUPABASE_REF": project.ref,
+//         //     "SUPABASE_URL": `https://${project.endpoint}`,
+//         //     "SUPABASE_ANON_KEY": project.anon_key,
+//         //     "SUPABASE_SERVICE_KEY": project.service_key,
+//         //     "JWT_SECRET": project.jwt_secret,
+
+//         //     //"VERIFY_JWT": String(args['verify-jwt']),
+
+//         // }
+//     })
+
+//     console.log('env', res)
+// }
+
+// Deno.exit()
