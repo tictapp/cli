@@ -2,162 +2,113 @@
 
 import "https://deno.land/std@0.177.0/dotenv/load.ts";
 import deploy from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/deploy.ts"
-import logs from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/logs.ts"
-import { API, APIError } from "https://raw.githubusercontent.com/denoland/deployctl/main/src/utils/api.ts"
-import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
 import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 
-const args = parseArgs(Deno.args, {
-    boolean: [
-        'verify-jwt'
-    ]
-})
+export default async function _deploy(args) {
 
-const name = args._[0]
+    const functionName = args._.shift()
 
-console.log('args', args)
+    const TOKEN = Deno.env.get('TOKEN')
+    const PROJECT_REF = Deno.env.get('PROJECT_REF')
+    const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
 
-const studioAPI = StudioAPI.fromToken(Deno.env.get('TOKEN'))
-const project = await studioAPI.requestJson(`/projects/${Deno.env.get('PROJECT')}?_data`)
+    const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")
+    const DENO_DEPLOY_ORG = Deno.env.get("DENO_DEPLOY_ORG")
 
-const opts = {
-    token: 'ddp_ebahKKeZqiZVeOad7KJRHskLeP79Lf0OJXlj',
-    project: `${project.ref}-${name}`,
-    organizationId: "75fa843c-7493-4626-8440-d05bf0802bf5"
-}
+    const DENO_DEPLOY_PROJECT = `${PROJECT_REF}-${functionName}`
 
+    const studioAPI = StudioAPI.fromToken(TOKEN)
+    const project = await studioAPI.requestJson(`/projects/${PROJECT_REF}?_data`)
 
-const denoAPI = DenoAPI.fromToken(opts.token);
+    const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
+    const denoProject = await denoAPI.getProject(DENO_DEPLOY_PROJECT);
 
-const func = await denoAPI.getProject(opts.project);
+    const defaultEnvVars = {
+        "SUPABASE_REF": project.ref,
+        "SUPABASE_URL": `https://${project.endpoint}`,
+        "SUPABASE_ANON_KEY": project.anon_key,
+        "SUPABASE_SERVICE_KEY": project.service_key,
+        "JWT_SECRET": project.jwt_secret,
+        "VERIFY_JWT": String(args['verify-jwt']),
+    }
 
-const defaultEnvVars = {
-    "SUPABASE_REF": project.ref,
-    "SUPABASE_URL": `https://${project.endpoint}`,
-    "SUPABASE_ANON_KEY": project.anon_key,
-    "SUPABASE_SERVICE_KEY": project.service_key,
-    "JWT_SECRET": project.jwt_secret,
-    "VERIFY_JWT": String(args['verify-jwt'])
-}
+    await Deno.writeTextFile(`.env.defaults`, stringify(defaultEnvVars));
 
+    const envVars = await load({
+        envPath: `functions/${functionName}/.env`,
+        defaultsPath: `.env.defaults`,
+        export: false
+    });
 
-await Deno.writeTextFile(`.env.defaults`, stringify(defaultEnvVars));
+    envVars['FUNCTION_URL'] = `https://${PROJECT_REF}.${FUNCTIONS_DOMAIN}/${functionName}`
 
-const envVars = await load({
-    envPath: `functions/${name}/.env`,
-    defaultsPath: `.env.defaults`,
-    export: false
-});
+    if (denoProject === null) {
+        const res = await denoAPI.requestJson('/projects', {
+            method: 'POST',
+            body: {
+                "name": DENO_DEPLOY_PROJECT,
+                "organizationId": DENO_DEPLOY_ORG,
+                "envVars": envVars
+            }
+        })
 
-if (func === null) {
+        console.log('new func --> ', res)
 
-    const res = await denoAPI.requestJson('/projects', {
-        method: 'POST',
-        body: {
-            "name": opts.project,
-            "organizationId": opts.organizationId,
-            "envVars": envVars
+    } else {
+
+        // const lines = Object.keys(defaultEnvVars).map(key => {
+        //     return `${key}=${defaultEnvVars[key]}`
+        // }).join("\n")
+
+        await denoAPI.requestJson(`/projects/${denoProject.id}/env`, {
+            method: 'PATCH',
+            body: envVars
+        })
+
+        console.log('exists', 'hasProductionDeployment =>', denoProject.hasProductionDeployment)
+    }
+
+    async function exists(path) {
+        try {
+            return (await Deno.stat(path)).isFile;
+        } catch {
+            return false;
         }
+    }
+
+    let entrypoint = `./functions/${functionName}/index.js`
+    if (!(await exists(entrypoint)))
+        entrypoint = `./functions/${functionName}/index.ts`
+
+    if (!(await exists(entrypoint)))
+        entrypoint = `./functions/${functionName}/main.ts`
+    if (!(await exists(entrypoint)))
+        entrypoint = `./functions/${functionName}/main.js`
+
+    if (!(await exists(entrypoint))) {
+        console.error(`Entrypoint failed: ${entrypoint}`)
+        Deno.exit()
+    }
+
+    await deploy({
+        token: DENO_DEPLOY_TOKEN,
+        project: DENO_DEPLOY_PROJECT,
+        prod: args.prod,
+        static: args.static,
+        "import-map": args["import-map"] && `./functions/${functionName}/${args["import-map"]}`,
+        //include: `functions`,
+        _: [entrypoint]
     })
 
-    console.log('new func --> ', res)
+    console.log(`
 
-} else {
+Endpoint:%c
+    https://${PROJECT_REF}.${FUNCTIONS_DOMAIN}/${functionName}
+    https://${PROJECT_REF}-${functionName}.${FUNCTIONS_DOMAIN}
 
-    // const lines = Object.keys(defaultEnvVars).map(key => {
-    //     return `${key}=${defaultEnvVars[key]}`
-    // }).join("\n")
+%c${stringify(envVars)}`, 'color: lime', 'background-color: #222;color:#999')
 
-    // const res = await denoAPI.requestJson(`/projects/${func.id}/env`, {
-    //     method: 'PATCH',
-    //     body: defaultEnvVars
-    // })
-
-    console.log('exists', 'hasProductionDeployment =>', func.hasProductionDeployment)
 }
-
-async function exists(path) {
-    try {
-        return (await Deno.stat(path)).isFile;
-    } catch {
-        return false;
-    }
-}
-
-let entrypoint = `./functions/${name}/index.js`
-
-if (!(await exists(entrypoint)))
-    entrypoint = `./functions/${name}/index.ts`
-
-if (!(await exists(entrypoint))) {
-    console.error(`Entrypoint failed: ${entrypoint}`)
-    Deno.exit()
-}
-
-await deploy({
-    token: opts.token,
-    prod: true,
-    project: opts.project,
-    static: true,
-    include: `functions`,
-    _: [entrypoint]
-})
-
-console.log(`
-
-Endpoint:
-    https://${project.ref}.tictapp.fun/${name}
-
-Environment:
-${JSON.stringify(defaultEnvVars, null, 4)}
-`)
-
-Deno.exit()
-
-const api = API.fromToken(opts.token);
-const _project = await api.getProject(opts.project);
-
-if (_project === null) {
-
-    const token = Deno.env.get('TOKEN')
-    const ref = Deno.env.get('PROJECT')
-
-    if (!token || !ref)
-        Deno.exit(1);
-
-    const payload = {
-        name,
-        verify_jwt: args['verify-jwt']
-    }
-
-    const options = {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    };
-
-    const res = await fetch(`https://api.tictapp.studio/admin/projects/${ref}/functions`, options)
-    if (res.ok) {
-        const data = await res.json()
-        console.log('DATA', data)
-    } else {
-        console.error('error', res.status, res.statusText)
-        Deno.exit(1);
-    }
-}
-
-
-await deploy({
-    token: opts.token,
-    prod: true,
-    project: opts.project,
-    static: true,
-    include: `functions`,
-    _: [`functions/${name}/index.js`]
-})

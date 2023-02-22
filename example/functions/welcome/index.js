@@ -9,7 +9,7 @@ console.log("Welcome Function")
 serve((req) => {
 
   const data = {
-    name: 'welcome',
+    name: 'welcome nicolae',
     url: req.url,
     message: Deno.env.toObject(),
   }

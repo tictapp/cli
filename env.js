@@ -1,69 +1,37 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
 
-import "https://deno.land/std@0.177.0/dotenv/load.ts";
-import deploy from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/deploy.ts"
-import logs from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/logs.ts"
-import { API, APIError } from "https://raw.githubusercontent.com/denoland/deployctl/main/src/utils/api.ts"
-import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
-import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 
+export default async function _env(args) {
 
-const args = parseArgs(Deno.args, {
-    boolean: [
-        'verify-jwt'
-    ]
-})
+    const functionName = args._.shift()
 
-const name = args._[0]
+    const PROJECT_REF = Deno.env.get('PROJECT_REF')
+    const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")
+    const DENO_DEPLOY_PROJECT = `${PROJECT_REF}-${functionName}`
 
-const envVars = await load({
-    envPath: `functions/${name}/.env`,
-    defaultsPath: `.env.defaults`,
-    export: false
-});
+    const envVars = await load({
+        envPath: `functions/${functionName}/.env`,
+        defaultsPath: `.env.defaults`,
+        export: false
+    });
 
-console.log('args', args, envVars)
+    const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN)
+    const denoProject = await denoAPI.getProject(DENO_DEPLOY_PROJECT);
 
-//Deno.exit()
+    if (denoProject === null) {
 
-const studioAPI = StudioAPI.fromToken(Deno.env.get('TOKEN'))
-const project = await studioAPI.requestJson(`/projects/${Deno.env.get('PROJECT')}?_data`)
+        console.log('denoProject doesnt exists')
 
-const opts = {
-    token: 'ddp_ebahKKeZqiZVeOad7KJRHskLeP79Lf0OJXlj',
-    project: `${project.ref}-${name}`
+    } else {
+
+        const res = await denoAPI.requestJson(`/projects/${denoProject.id}/env`, {
+            method: 'PATCH',
+            body: envVars
+        })
+
+        console.log(res.envVars)
+    }
+
 }
-
-
-const denoAPI = DenoAPI.fromToken(opts.token);
-
-const func = await denoAPI.getProject(opts.project);
-
-if (func === null) {
-
-    console.log('func doesnt exists')
-
-} else {
-
-    const res = await denoAPI.requestJson(`/projects/${func.id}/env`, {
-        method: 'PATCH',
-        body: envVars
-
-        // body: {
-        //     "SUPABASE_REF": project.ref,
-        //     "SUPABASE_URL": `https://${project.endpoint}`,
-        //     "SUPABASE_ANON_KEY": project.anon_key,
-        //     "SUPABASE_SERVICE_KEY": project.service_key,
-        //     "JWT_SECRET": project.jwt_secret,
-
-        //     //"VERIFY_JWT": String(args['verify-jwt']),
-
-        // }
-    })
-
-    console.log('env', res)
-}
-
-Deno.exit()

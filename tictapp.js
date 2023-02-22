@@ -8,17 +8,22 @@ import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
 import _status from "./status.js";
 import _logs from "./logs.js";
 import _init from "./init.js";
+import _deploy from "./deploy.js";
+import _env from "./env.js";
 
 async function getJson(filePath) {
     return JSON.parse(await Deno.readTextFile(filePath));
 }
+
+if (!Deno.env.get("FUNCTIONS_DOMAIN"))
+    Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
 const json = await getJson(`./tictapp.json`)
 
 const { token, deno_deploy_token, deno_deploy_org, profile, project } = json
 
 if (deno_deploy_token) {
-    Deno.env.set('API_TOKEN', token)
+    Deno.env.set('TOKEN', token)
     Deno.env.set('PROJECT_REF', project.ref)
     Deno.env.set('DENO_DEPLOY_TOKEN', deno_deploy_token)
     Deno.env.set('DENO_DEPLOY_ORG', deno_deploy_org)
@@ -26,13 +31,18 @@ if (deno_deploy_token) {
 
 const args = parseArgs(Deno.args, {
     alias: {
-        'p': 'prod'
+        'p': 'prod',
+        's': 'static'
     },
     boolean: [
-        'prod'
+        'prod',
+        'static',
+        'verify-jwt'
     ],
     default: {
-        prod: true
+        prod: true,
+        static: true,
+        'verify-jwt': false
     }
 })
 
@@ -41,6 +51,12 @@ const subcommand = args._.shift()
 switch (subcommand) {
     case "init":
         _init(args)
+        break
+    case "deploy":
+        _deploy(args)
+        break
+    case "env":
+        _env(args)
         break
     case "status":
         _status(args)

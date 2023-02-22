@@ -17,6 +17,8 @@ async function getJson(filePath) {
 }
 
 export default async function status() {
+    const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
+
     const json = await getJson(`./tictapp.json`)
 
     const { profile, project } = json
@@ -27,7 +29,7 @@ export default async function status() {
 %c${project.name}  %c${project.status}%c
 
 Api:        https://${project.endpoint}
-Functions:  https://${project.endpoint.replace('.io', '.fun')}
+Functions:  https://${project.ref}.${FUNCTIONS_DOMAIN}
 `,
         "color: orange",
         "color: aquamarine;font-weight:bold",
