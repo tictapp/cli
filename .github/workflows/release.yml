@@ -1,0 +1,22 @@
+name: docker-publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-20.04
+    outputs:
+      published: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          semantic_version: 18
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
