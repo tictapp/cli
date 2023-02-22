@@ -1,3 +1,6 @@
-**/.env
-**/.env.defaults
-**/tictapp.json
+.env
+.env.defaults
+example/tictapp.json
+example/.env
+example/.env.defaults
+example/**/.env
