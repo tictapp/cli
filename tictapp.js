@@ -2,31 +2,33 @@
 
 // import "https://deno.land/std@0.177.0/dotenv/load.ts";
 import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
-// import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
-// import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 
 import _status from "./status.js";
 import _logs from "./logs.js";
 import _init from "./init.js";
 import _deploy from "./deploy.js";
 import _env from "./env.js";
+import _new from "./new.js";
+import _delete from "./delete.js";
 
-async function getJson(filePath) {
-    return JSON.parse(await Deno.readTextFile(filePath));
-}
+import { getJson, exists } from "./helpers.js";
 
 if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
-const json = await getJson(`./tictapp.json`)
+if (await exists('./tictapp.json')) {
 
-const { token, deno_deploy_token, deno_deploy_org, profile, project } = json
+    const json = await getJson(`./tictapp.json`)
 
-if (deno_deploy_token) {
-    Deno.env.set('TOKEN', token)
-    Deno.env.set('PROJECT_REF', project.ref)
-    Deno.env.set('DENO_DEPLOY_TOKEN', deno_deploy_token)
-    Deno.env.set('DENO_DEPLOY_ORG', deno_deploy_org)
+    const { token, deno_deploy_token, deno_deploy_org, profile, project } = json
+
+    if (deno_deploy_token) {
+        Deno.env.set('TOKEN', token)
+        Deno.env.set('PROJECT_REF', project.ref)
+        Deno.env.set('DENO_DEPLOY_TOKEN', deno_deploy_token)
+        Deno.env.set('DENO_DEPLOY_ORG', deno_deploy_org)
+    }
+
 }
 
 const args = parseArgs(Deno.args, {
@@ -54,6 +56,12 @@ switch (subcommand) {
         break
     case "deploy":
         _deploy(args)
+        break
+    case "new":
+        _new(args)
+        break
+    case "delete":
+        _delete(args)
         break
     case "env":
         _env(args)

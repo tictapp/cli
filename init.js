@@ -2,29 +2,7 @@
 
 import { API as StudioAPI } from "./api_studio.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
-
-
-async function exists(path) {
-    try {
-        return (await Deno.stat(path)).isFile;
-    } catch {
-        return false;
-    }
-}
-
-
-async function writeJson(filePath, o) {
-    await Deno.writeTextFile(filePath, JSON.stringify(o, null, 4));
-}
-
-async function getJson(filePath) {
-    return JSON.parse(await Deno.readTextFile(filePath));
-}
-
-//const args = parseArgs(Deno.args)
-
-//const ref = args._[0]
-//const token = args._[1]
+import { getJson, writeJson, exists } from "./helpers.js";
 
 export default async function _init(args) {
 
