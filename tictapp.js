@@ -10,6 +10,7 @@ import _deploy from "./deploy.js";
 import _env from "./env.js";
 import _new from "./new.js";
 import _delete from "./delete.js";
+import _upgrade from "./upgrade.js";
 
 import { getJson, exists } from "./helpers.js";
 
@@ -71,6 +72,9 @@ switch (subcommand) {
         break
     case "logs":
         _logs(args)
+        break
+    case "upgrade":
+        _upgrade(args)
         break
     default:
         console.log(`Invalid subcomand: ${subcommand}`)
