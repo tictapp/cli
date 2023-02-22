@@ -1,2 +1,2 @@
-.env
-tictapp.json
+*.env
+*tictapp.json
