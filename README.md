@@ -1,1 +1,3 @@
 # tictapp-cli
+
+`tictapp`
