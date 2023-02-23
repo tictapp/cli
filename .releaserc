@@ -6,7 +6,7 @@
     [
       "@semantic-release/exec",
       {
-        "publishCmd": "echo \"VERSION=${nextRelease.version}\" >> .version"
+        "prepareCmd": "echo \"VERSION=${nextRelease.version}\" >> .version"
       }
     ],
     "@semantic-release/commit-analyzer",
