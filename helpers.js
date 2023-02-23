@@ -14,14 +14,8 @@ export function getConfigPaths() {
 }
 
 export async function fetchReleases() {
-    console.log('fetchReleases')
-
     try {
-        const { latest } = await getVersions().catch(e => {
-            console.log('latestss err', e)
-
-        });
-        console.log('latestss', latest)
+        const { latest } = await getVersions();
         const updateInfo = { lastFetched: Date.now(), latest };
         const { updatePath, configDir } = getConfigPaths();
         await Deno.mkdir(configDir, { recursive: true });
@@ -30,8 +24,6 @@ export async function fetchReleases() {
             new TextEncoder().encode(JSON.stringify(updateInfo, null, 2)),
         );
     } catch (_) {
-        console.log('fetchReleases err', _)
-
         // We will try again later when the fetch isn't successful,
         // so we shouldn't report errors.
     }

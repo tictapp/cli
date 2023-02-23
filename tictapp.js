@@ -22,6 +22,7 @@ if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
 const help = `tictapp ${VERSION}
+
 Command line tool for tictapp.
 To deploy a local script:
   deployctl deploy --project=helloworld ./main.ts
@@ -79,11 +80,10 @@ if (Deno.isatty(Deno.stdin.rid)) {
         if (error.name == "NotFound") return null;
         console.error(error);
     });
-    console.log('updatePath', updatePath, updateInfoJson)
 
     if (updateInfoJson) {
         const updateInfo = JSON.parse(updateInfoJson)
-        console.log('updateInfo', updateInfo)
+
         const moreThanADay =
             Math.abs(Date.now() - updateInfo.lastFetched) > 24 * 60 * 60 * 1000;
         // Fetch the latest release if it has been more than a day since the last
@@ -104,7 +104,7 @@ if (Deno.isatty(Deno.stdin.rid)) {
     ) {
         console.log(
             [
-                `A new release of tictapp is available: ${VERSION} -> ${latestVersion}`,
+                `\nA new release of tictapp is available: ${VERSION} -> ${latestVersion}`,
                 "To upgrade, run `tictapp upgrade`",
                 `https://github.com/serebano/tictapp/releases/tag/${latestVersion}\n`,
             ].join("\n"),
@@ -114,7 +114,7 @@ if (Deno.isatty(Deno.stdin.rid)) {
 
 const subcommand = args._.shift()
 
-console.log(`tictapp ${VERSION}`)
+//console.log(`tictapp ${VERSION}`)
 
 switch (subcommand) {
     case "init":
