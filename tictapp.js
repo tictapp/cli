@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
 
-import { parseArgs } from "./deps.js";
+import { parseArgs, semverGreaterThanOrEquals } from "./deps.js";
 
 import _status from "./status.js";
 import _logs from "./logs.js";
@@ -12,7 +12,11 @@ import _delete from "./delete.js";
 import _upgrade from "./upgrade.js";
 import { VERSION } from "./version.js";
 
-import { getJson, exists } from "./helpers.js";
+import { getJson, exists, fetchReleases, getConfigPaths } from "./helpers.js";
+import { error } from "./error.js";
+
+const MINIMUM_DENO_VERSION = "1.20.0";
+
 
 if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
@@ -28,6 +32,52 @@ SUBCOMMANDS:
     upgrade   Upgrade deployctl to the given version (defaults to latest)
     logs      Stream logs for the given project
 `;
+
+if (!semverGreaterThanOrEquals(Deno.version.deno, MINIMUM_DENO_VERSION)) {
+    error(
+        `The Deno version you are using is too old. Please update to Deno ${MINIMUM_DENO_VERSION} or later. To do this run \`deno upgrade\`.`,
+    );
+}
+
+if (Deno.isatty(Deno.stdin.rid)) {
+    let latestVersion;
+    // Get the path to the update information json file.
+    const { updatePath } = getConfigPaths();
+    // Try to read the json file.
+    const updateInfoJson = await Deno.readTextFile(updatePath).catch((error) => {
+        if (error.name == "NotFound") return null;
+        console.error(error);
+    });
+    if (updateInfoJson) {
+        const updateInfo = JSON.parse(updateInfoJson)
+        console.log('updateInfo', updateInfo)
+        const moreThanADay =
+            Math.abs(Date.now() - updateInfo.lastFetched) > 24 * 60 * 60 * 1000;
+        // Fetch the latest release if it has been more than a day since the last
+        // time the information about new version is fetched.
+        if (moreThanADay) {
+            fetchReleases();
+        } else {
+            latestVersion = updateInfo.latest;
+        }
+    } else {
+        fetchReleases();
+    }
+
+    // If latestVersion is set we need to inform the user about a new release.
+    if (
+        latestVersion &&
+        !(semverGreaterThanOrEquals(VERSION, latestVersion.toString()))
+    ) {
+        console.log(
+            [
+                `A new release of tictapp is available: ${VERSION} -> ${latestVersion}`,
+                "To upgrade, run `tictapp upgrade`",
+                `https://github.com/serebano/tictapp/releases/tag/${latestVersion}\n`,
+            ].join("\n"),
+        );
+    }
+}
 
 if (await exists('./tictapp.json')) {
 
