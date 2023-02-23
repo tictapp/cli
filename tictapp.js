@@ -39,46 +39,6 @@ if (!semverGreaterThanOrEquals(Deno.version.deno, MINIMUM_DENO_VERSION)) {
     );
 }
 
-if (Deno.isatty(Deno.stdin.rid)) {
-    let latestVersion;
-    // Get the path to the update information json file.
-    const { updatePath } = getConfigPaths();
-    // Try to read the json file.
-    const updateInfoJson = await Deno.readTextFile(updatePath).catch((error) => {
-        if (error.name == "NotFound") return null;
-        console.error(error);
-    });
-    if (updateInfoJson) {
-        const updateInfo = JSON.parse(updateInfoJson)
-        console.log('updateInfo', updateInfo)
-        const moreThanADay =
-            Math.abs(Date.now() - updateInfo.lastFetched) > 24 * 60 * 60 * 1000;
-        // Fetch the latest release if it has been more than a day since the last
-        // time the information about new version is fetched.
-        if (moreThanADay) {
-            fetchReleases();
-        } else {
-            latestVersion = updateInfo.latest;
-        }
-    } else {
-        fetchReleases();
-    }
-
-    // If latestVersion is set we need to inform the user about a new release.
-    if (
-        latestVersion &&
-        !(semverGreaterThanOrEquals(VERSION, latestVersion.toString()))
-    ) {
-        console.log(
-            [
-                `A new release of tictapp is available: ${VERSION} -> ${latestVersion}`,
-                "To upgrade, run `tictapp upgrade`",
-                `https://github.com/serebano/tictapp/releases/tag/${latestVersion}\n`,
-            ].join("\n"),
-        );
-    }
-}
-
 if (await exists('./tictapp.json')) {
 
     const json = await getJson(`./tictapp.json`)
@@ -109,6 +69,48 @@ const args = parseArgs(Deno.args, {
         static: true,
     }
 })
+
+if (Deno.isatty(Deno.stdin.rid)) {
+    let latestVersion;
+    // Get the path to the update information json file.
+    const { updatePath } = getConfigPaths();
+    // Try to read the json file.
+    const updateInfoJson = await Deno.readTextFile(updatePath).catch((error) => {
+        if (error.name == "NotFound") return null;
+        console.error(error);
+    });
+    console.log('updatePath', updatePath, updateInfoJson)
+
+    if (updateInfoJson) {
+        const updateInfo = JSON.parse(updateInfoJson)
+        console.log('updateInfo', updateInfo)
+        const moreThanADay =
+            Math.abs(Date.now() - updateInfo.lastFetched) > 24 * 60 * 60 * 1000;
+        // Fetch the latest release if it has been more than a day since the last
+        // time the information about new version is fetched.
+        if (moreThanADay) {
+            fetchReleases();
+        } else {
+            latestVersion = updateInfo.latest;
+        }
+    } else {
+        fetchReleases();
+    }
+
+    // If latestVersion is set we need to inform the user about a new release.
+    if (
+        latestVersion &&
+        !(semverGreaterThanOrEquals(VERSION, latestVersion.toString()))
+    ) {
+        console.log(
+            [
+                `A new release of tictapp is available: ${VERSION} -> ${latestVersion}`,
+                "To upgrade, run `tictapp upgrade`",
+                `https://github.com/serebano/tictapp/releases/tag/${latestVersion}\n`,
+            ].join("\n"),
+        );
+    }
+}
 
 const subcommand = args._.shift()
 
