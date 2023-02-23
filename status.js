@@ -1,8 +1,14 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
-import { getJson, exists } from "./helpers.js";
+import { getJson, exists, getLogin } from "./helpers.js";
 
 export default async function status() {
     const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
+
+    const login = await getLogin()
+
+    if (login) {
+        console.log(login)
+    }
 
     if (!await exists('./tictapp.json')) {
         console.log(`No project found. run tictapp init`)

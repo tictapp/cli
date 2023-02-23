@@ -9,8 +9,23 @@ export function getConfigPaths() {
 
     return {
         configDir,
+        loginPath: join(configDir, "login.json"),
         updatePath: join(configDir, "update.json"),
     };
+}
+
+export async function getLogin() {
+    const { loginPath, configDir } = getConfigPaths();
+    // Try to read the json file.
+    const loginInfoJson = await Deno.readTextFile(loginPath).catch((error) => {
+        if (error.name == "NotFound") return null;
+        console.error(error);
+    });
+
+    if (loginInfoJson) {
+        return JSON.parse(loginInfoJson)
+    }
+    return null
 }
 
 export async function fetchReleases() {

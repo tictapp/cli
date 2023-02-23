@@ -2,6 +2,7 @@
 
 import { parseArgs, semverGreaterThanOrEquals } from "./deps.js";
 
+import _login from "./login.js";
 import _status from "./status.js";
 import _logs from "./logs.js";
 import _init from "./init.js";
@@ -10,6 +11,7 @@ import _env from "./env.js";
 import _new from "./new.js";
 import _delete from "./delete.js";
 import _upgrade from "./upgrade.js";
+import _link from "./link.js";
 import { VERSION } from "./version.js";
 
 import { getJson, exists, fetchReleases, getConfigPaths } from "./helpers.js";
@@ -118,8 +120,14 @@ const subcommand = args._.shift()
 //console.log(`tictapp ${VERSION}`)
 
 switch (subcommand) {
+    case "login":
+        await _login(args)
+        break
     case "init":
         await _init(args)
+        break
+    case "link":
+        await _link(args)
         break
     case "deploy":
         await _deploy(args)
