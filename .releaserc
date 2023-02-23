@@ -7,7 +7,8 @@
       "semantic-release-plugin-update-version-in-files",
       {
         "files": [
-          "version.js"
+          "/version.js",
+          "/README.md"
         ],
         "placeholder": "0.0.0-automated"
       }
