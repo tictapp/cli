@@ -4,12 +4,9 @@
   ],
   "plugins": [
     [
-      "semantic-release-plugin-update-version-in-files",
+      "@semantic-release/exec",
       {
-        "files": [
-          "version.js"
-        ],
-        "placeholder": "0.0.0-automated"
+        "prepareCmd": "./release.sh ${nextRelease.version}"
       }
     ],
     "@semantic-release/commit-analyzer",

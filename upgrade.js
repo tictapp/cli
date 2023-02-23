@@ -3,6 +3,7 @@
 import { error } from "./error.js";
 import { semverGreaterThanOrEquals, semverValid } from "./deps.js";
 import { VERSION } from "./version.js";
+const MINIMUM_DENO_VERSION = "1.20.0";
 
 const help = `tictapp upgrade
 Upgrade deployctl to the given version (defaults to latest).

@@ -1,3 +1,1 @@
-export const VERSION = "0.0.0-automated";
-
-export const MINIMUM_DENO_VERSION = "1.20.0";
+export const VERSION = '1.2.0'
