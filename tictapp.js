@@ -21,7 +21,8 @@ const MINIMUM_DENO_VERSION = "1.20.0";
 if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
-const help = `tictapp ${VERSION}
+const help = `
+tictapp ${VERSION}
 
 Command line tool for tictapp.
 To deploy a local script:
@@ -85,7 +86,7 @@ if (Deno.isatty(Deno.stdin.rid)) {
         const updateInfo = JSON.parse(updateInfoJson)
 
         const moreThanADay =
-            Math.abs(Date.now() - updateInfo.lastFetched) > 24 * 60 * 60 * 1000;
+            Math.abs(Date.now() - updateInfo.lastFetched) > 1 * 60 * 60 * 1000;
         // Fetch the latest release if it has been more than a day since the last
         // time the information about new version is fetched.
         if (moreThanADay) {
