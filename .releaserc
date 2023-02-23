@@ -3,6 +3,8 @@
     "main"
   ],
   "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
     [
       "semantic-release-plugin-update-version-in-files",
       {
@@ -20,11 +22,9 @@
           "README.md",
           "version.js"
         ],
-        "message": "chore(release): update changelog [skip ci]"
+        "message": "chore(release): update version ${nextRelease.version} [skip ci]"
       }
     ],
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
     "@semantic-release/github"
   ]
 }
