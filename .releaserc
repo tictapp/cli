@@ -3,14 +3,17 @@
     "main"
   ],
   "plugins": [
+    [
+      "semantic-release-plugin-update-version-in-files",
+      {
+        "files": [
+          "version.js"
+        ],
+        "placeholder": "0.0.0-automated"
+      }
+    ],
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    "@semantic-release/github",
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "./release.sh ${nextRelease.version}"
-      }
-    ]
+    "@semantic-release/github"
   ]
 }

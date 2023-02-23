@@ -19,6 +19,6 @@ jobs:
         with:
           semantic_version: 18
           extra_plugins: |
-            @semantic-release/exec
+            semantic-release-plugin-update-version-in-files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
