@@ -28,5 +28,5 @@ serve((req) => {
         env: Deno.env.toObject(),
     }
 
-    return Response.json(data)
+    return new Response(`Hello ${Deno.env.get('APP_NAME')}`)
 })

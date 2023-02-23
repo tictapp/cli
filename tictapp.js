@@ -12,6 +12,7 @@ import _new from "./new.js";
 import _delete from "./delete.js";
 import _upgrade from "./upgrade.js";
 import _link from "./link.js";
+import _run from "./run.js";
 import { VERSION } from "./version.js";
 
 import { getJson, exists, fetchReleases, getConfigPaths } from "./helpers.js";
@@ -149,6 +150,9 @@ switch (subcommand) {
         break
     case "upgrade":
         await _upgrade(args)
+        break
+    case "run":
+        await _run(args)
         break
     default:
         console.log(help)
