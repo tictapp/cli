@@ -1,7 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
 
-// import "https://deno.land/std@0.177.0/dotenv/load.ts";
-import { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
+import { parseArgs } from "./deps.js";
 
 import _status from "./status.js";
 import _logs from "./logs.js";
@@ -11,11 +10,24 @@ import _env from "./env.js";
 import _new from "./new.js";
 import _delete from "./delete.js";
 import _upgrade from "./upgrade.js";
+import { VERSION } from "./version.js";
 
 import { getJson, exists } from "./helpers.js";
 
 if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
+
+const help = `tictapp ${VERSION}
+Command line tool for tictapp.
+To deploy a local script:
+  deployctl deploy --project=helloworld ./main.ts
+To deploy a remote script:
+  deployctl deploy --project=helloworld https://deno.land/x/deploy/examples/hello.js
+SUBCOMMANDS:
+    deploy    Deploy a script with static files to Deno Deploy
+    upgrade   Upgrade deployctl to the given version (defaults to latest)
+    logs      Stream logs for the given project
+`;
 
 if (await exists('./tictapp.json')) {
 
@@ -45,37 +57,38 @@ const args = parseArgs(Deno.args, {
     default: {
         prod: true,
         static: true,
-        'verify-jwt': false
     }
 })
 
 const subcommand = args._.shift()
 
+console.log(`tictapp ${VERSION}`)
+
 switch (subcommand) {
     case "init":
-        _init(args)
+        await _init(args)
         break
     case "deploy":
-        _deploy(args)
+        await _deploy(args)
         break
     case "new":
-        _new(args)
+        await _new(args)
         break
     case "delete":
-        _delete(args)
+        await _delete(args)
         break
     case "env":
-        _env(args)
+        await _env(args)
         break
     case "status":
-        _status(args)
+        await _status(args)
         break
     case "logs":
-        _logs(args)
+        await _logs(args)
         break
     case "upgrade":
-        _upgrade(args)
+        await _upgrade(args)
         break
     default:
-        console.log(`Invalid subcomand: ${subcommand}`)
+        console.log(help)
 }

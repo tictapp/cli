@@ -1,5 +1,0 @@
-{
-    "tasks": {
-        "start": "deno run -A status.js \"$INIT_CWD\""
-    }
-}
