@@ -1,3 +1,5 @@
 # tictapp-cli
 
-`tictapp-cli 1.4.4`
+`
+deno install --allow-read --allow-write --allow-env --allow-net --allow-run --no-check -r -f https://deno.land/x/tictapp/tictapp.js
+`

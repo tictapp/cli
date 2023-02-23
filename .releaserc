@@ -6,14 +6,14 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "echo \"${nextRelease.version}\" > .version"
+        "prepareCmd": "echo \"export const VERSION = '${nextRelease.version}'\" > version.js"
       }
     ],
     [
       "@semantic-release/git",
       {
         "assets": [
-          ".version"
+          "version.js"
         ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
