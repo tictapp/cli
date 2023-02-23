@@ -1,3 +1,4 @@
 .env
 .env.defaults
 tictapp.json
+node_modules

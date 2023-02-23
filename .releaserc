@@ -3,6 +3,12 @@
     "main"
   ],
   "plugins": [
+    [
+      "@semantic-release/exec",
+      {
+        "publishCmd": "echo \"VERSION=${nextRelease.version}\" >> version.env"
+      }
+    ],
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator"
   ]
