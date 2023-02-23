@@ -1,3 +1,3 @@
 # tictapp-cli
 
-`tictapp 1.4.1`
+`tictapp 0.0.0-automated`
