@@ -13,27 +13,45 @@ export default async function _env(args) {
         export: false
     });
 
-    let entrypoint = `./functions/${functionName}/index.js`
+    if ((await exists(`./functions/${functionName}/deno.json`))) {
+        const p = Deno.run({
+            cmd: [
+                Deno.execPath(),
+                "task",
+                "--config",
+                `./functions/${functionName}/deno.json`,
+                "--cwd",
+                `./functions/${functionName}`,
+                "start"
+            ],
+            env: envVars,
+        });
 
-    if (!(await exists(entrypoint)))
-        entrypoint = `./functions/${functionName}/index.ts`
+        await p.status()
+    } else {
 
-    if (!(await exists(entrypoint))) {
-        console.error(`Entrypoint failed: ${entrypoint}`)
-        Deno.exit()
+        let entrypoint = `./functions/${functionName}/index.js`
+
+        if (!(await exists(entrypoint)))
+            entrypoint = `./functions/${functionName}/index.ts`
+
+        if (!(await exists(entrypoint))) {
+            console.error(`Entrypoint failed: ${entrypoint}`)
+            Deno.exit()
+        }
+
+        const p = Deno.run({
+            cmd: [
+                Deno.execPath(),
+                "run",
+                "--allow-all",
+                "--watch",
+                entrypoint
+            ],
+            env: envVars,
+        });
+
+        await p.status()
     }
-
-    const p = Deno.run({
-        cmd: [
-            Deno.execPath(),
-            "run",
-            "--allow-all",
-            "--watch",
-            entrypoint
-        ],
-        env: envVars,
-    });
-
-    await p.status()
 
 }
