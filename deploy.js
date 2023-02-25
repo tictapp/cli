@@ -10,9 +10,10 @@ import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 export default async function _deploy(args) {
 
     const functionName = args._.shift()
+    const project_ref = args.project
 
     const TOKEN = Deno.env.get('TOKEN')
-    const PROJECT_REF = Deno.env.get('PROJECT_REF')
+    const PROJECT_REF = project_ref || Deno.env.get('PROJECT_REF')
     const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
 
     const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")

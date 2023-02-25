@@ -61,8 +61,7 @@ if (await exists('./tictapp.json')) {
 
 const args = parseArgs(Deno.args, {
     alias: {
-        'p': 'prod',
-        's': 'static'
+        'p': 'project'
     },
     boolean: [
         'prod',
