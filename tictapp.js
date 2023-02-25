@@ -15,8 +15,16 @@ import _link from "./link.js";
 import _run from "./run.js";
 import { VERSION } from "./version.js";
 
-import { getJson, exists, fetchReleases, getConfigPaths } from "./helpers.js";
+import { getJson, exists, fetchReleases, getConfigPaths, getLogin } from "./helpers.js";
 import { error } from "./error.js";
+
+const login = await getLogin()
+
+if (login) {
+    Deno.env.set('TOKEN', login.token)
+    Deno.env.set('DENO_DEPLOY_TOKEN', login.deno_deploy_token)
+    Deno.env.set('DENO_DEPLOY_ORG', login.deno_deploy_org)
+}
 
 const MINIMUM_DENO_VERSION = "1.20.0";
 
@@ -44,6 +52,8 @@ if (!semverGreaterThanOrEquals(Deno.version.deno, MINIMUM_DENO_VERSION)) {
     );
 }
 
+
+
 if (await exists('./tictapp.json')) {
 
     const json = await getJson(`./tictapp.json`)
@@ -51,10 +61,10 @@ if (await exists('./tictapp.json')) {
     const { token, deno_deploy_token, deno_deploy_org, profile, project } = json
 
     if (deno_deploy_token) {
-        Deno.env.set('TOKEN', token)
+        //Deno.env.set('TOKEN', token)
         Deno.env.set('PROJECT_REF', project.ref)
-        Deno.env.set('DENO_DEPLOY_TOKEN', deno_deploy_token)
-        Deno.env.set('DENO_DEPLOY_ORG', deno_deploy_org)
+        //Deno.env.set('DENO_DEPLOY_TOKEN', deno_deploy_token)
+        //Deno.env.set('DENO_DEPLOY_ORG', deno_deploy_org)
     }
 
 }

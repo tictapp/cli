@@ -10,10 +10,23 @@ import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 export default async function _deploy(args) {
 
     const functionName = args._.shift()
-    const project_ref = args.project
 
     const TOKEN = Deno.env.get('TOKEN')
-    const PROJECT_REF = project_ref || Deno.env.get('PROJECT_REF')
+
+    let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
+
+    if (!PROJECT_REF) {
+        const studio_api = StudioAPI.fromToken(TOKEN)
+        const studio_projects = await studio_api.requestJson(`/projects`)
+        if (studio_projects.error) {
+            console.log(studio_projects)
+            Deno.exit()
+        }
+        console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+
+        PROJECT_REF = prompt(`Enter project ref`)
+    }
+
     const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
 
     const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")
@@ -23,6 +36,11 @@ export default async function _deploy(args) {
 
     const studioAPI = StudioAPI.fromToken(TOKEN)
     const project = await studioAPI.requestJson(`/projects/${PROJECT_REF}?_data`)
+
+    if (project.error) {
+        console.log(project)
+        Deno.exit()
+    }
 
     const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
     const denoProject = await denoAPI.getProject(DENO_DEPLOY_PROJECT);
