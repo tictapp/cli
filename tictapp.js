@@ -13,6 +13,8 @@ import _delete from "./delete.js";
 import _upgrade from "./upgrade.js";
 import _link from "./link.js";
 import _run from "./run.js";
+import _api from "./api.js";
+
 import { VERSION } from "./version.js";
 
 import { getJson, exists, fetchReleases, getConfigPaths, getLogin } from "./helpers.js";
@@ -162,6 +164,9 @@ switch (subcommand) {
         break
     case "run":
         await _run(args)
+        break
+    case "api":
+        await _api(args)
         break
     default:
         console.log(help)
