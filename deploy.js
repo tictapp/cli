@@ -117,7 +117,7 @@ export default async function _deploy(args) {
         project: DENO_DEPLOY_PROJECT,
         prod: args.prod,
         static: args.static,
-        "import-map": args["import-map"] && `./functions/${functionName}/${args["import-map"]}`,
+        "import-map": `./functions/${functionName}/import_map.json`, //args["import-map"] && `./functions/${functionName}/${args["import-map"]}`,
         //include: `functions`,
         _: [entrypoint]
     })

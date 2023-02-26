@@ -17,7 +17,7 @@ export default async function status() {
         const studio_profile = await studio_api.requestJson(`/projects`)
         const deno_profile = await deno_api.requestJson(`/projects`)
         console.table(deno_profile.map(o => ({ name: o.name, url: `https://${o.name}.tictapp.fun`, active: o.hasProductionDeployment })))
-        console.table(studio_profile.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+        console.table(studio_profile.map(o => ({ ref: o.ref, name: o.name, endpoint: `https://${o.endpoint}`, updated: o.updated_at })))
 
         //console.log(studio_profile, deno_profile)
     }
