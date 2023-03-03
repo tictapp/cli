@@ -4,6 +4,7 @@ import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
 
 export default async function _api(args) {
 
@@ -11,6 +12,7 @@ export default async function _api(args) {
 
     let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
     console.log('PROJECT_REF', PROJECT_REF)
+
     if (!PROJECT_REF || PROJECT_REF === true) {
         const studio_api = StudioAPI.fromToken(TOKEN)
         const studio_projects = await studio_api.requestJson(`/projects`)
@@ -18,9 +20,14 @@ export default async function _api(args) {
             console.log(studio_projects)
             Deno.exit()
         }
-        console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+        // console.table(studio_projects.map(o => ({ name: o.name, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+        // PROJECT_REF = prompt(`Enter project ref`)
 
-        PROJECT_REF = prompt(`Enter project ref`)
+        PROJECT_REF = await Select.prompt({
+            message: "Pick a project",
+            options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name}`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
+        });
+
     }
 
     const studioAPI = StudioAPI.fromToken(TOKEN)
@@ -31,7 +38,7 @@ export default async function _api(args) {
         Deno.exit()
     }
 
-    console.log(project)
+    //console.log(project)
 
     const dbUri = `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
 
