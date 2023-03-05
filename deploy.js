@@ -1,30 +1,41 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
-
 import "https://deno.land/std@0.177.0/dotenv/load.ts";
 import deploy from "https://raw.githubusercontent.com/denoland/deployctl/main/src/subcommands/deploy.ts"
 import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+import { exists } from "./helpers.js";
+import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
+
+// psql \
+//   --single-transaction \
+//   --variable ON_ERROR_STOP=1 \
+//   --file dump-fapp.sql \
+//   --dbname "$NEW_DB_URL"
 
 export default async function _deploy(args) {
 
     const functionName = args._.shift()
+    let funPath = `./functions/${functionName}`
 
     const TOKEN = Deno.env.get('TOKEN')
 
     let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
 
-    if (!PROJECT_REF) {
+    if (!PROJECT_REF || PROJECT_REF === true) {
         const studio_api = StudioAPI.fromToken(TOKEN)
         const studio_projects = await studio_api.requestJson(`/projects`)
         if (studio_projects.error) {
             console.log(studio_projects)
             Deno.exit()
         }
-        console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+        // console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
 
-        PROJECT_REF = prompt(`Enter project ref`)
+        // PROJECT_REF = prompt(`Enter project ref`)
+        PROJECT_REF = await Select.prompt({
+            message: "Pick a project",
+            options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name}`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
+        });
     }
 
     const FUNCTIONS_DOMAIN = Deno.env.get("FUNCTIONS_DOMAIN")
@@ -40,6 +51,27 @@ export default async function _deploy(args) {
     if (project.error) {
         console.log(project)
         Deno.exit()
+    }
+
+    if (args.seed) {
+        // psql \
+//   --single-transaction \
+//   --variable ON_ERROR_STOP=1 \
+//   --file dump-fapp.sql \
+//   --dbname "$NEW_DB_URL"
+        const process = Deno.run({
+            cmd: [
+                "psql",
+              "--single-transaction",
+              "--variable",
+              "ON_ERROR_STOP=1",
+              "--file",
+              `${funPath}/seed.sql`,
+              "--dbname",
+              `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
+            ],
+          });
+          await process.status();
     }
 
     const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
@@ -90,44 +122,58 @@ export default async function _deploy(args) {
         console.log('exists', 'hasProductionDeployment =>', denoProject.hasProductionDeployment)
     }
 
-    async function exists(path) {
-        try {
-            return (await Deno.stat(path)).isFile;
-        } catch {
-            return false;
-        }
-    }
 
-    let entrypoint = `./functions/${functionName}/index.js`
+    Deno.chdir(funPath)
+
+    funPath = '.'
+
+    let entrypoint = `${funPath}/index.js`
     if (!(await exists(entrypoint)))
-        entrypoint = `./functions/${functionName}/index.ts`
+        entrypoint = `${funPath}/index.ts`
 
     if (!(await exists(entrypoint)))
-        entrypoint = `./functions/${functionName}/main.ts`
+        entrypoint = `${funPath}/main.ts`
     if (!(await exists(entrypoint)))
-        entrypoint = `./functions/${functionName}/main.js`
+        entrypoint = `${funPath}/main.js`
 
     if (!(await exists(entrypoint))) {
         console.error(`Entrypoint failed: ${entrypoint}`)
         Deno.exit()
     }
 
-    await deploy({
+    const deployArgs = {
         token: DENO_DEPLOY_TOKEN,
         project: DENO_DEPLOY_PROJECT,
         prod: args.prod,
         static: args.static,
-        "import-map": `./functions/${functionName}/import_map.json`, //args["import-map"] && `./functions/${functionName}/${args["import-map"]}`,
-        //include: `functions`,
+        //include: functionName,
         _: [entrypoint]
+    }
+
+    if (await exists(`${funPath}/import_map.json`))
+        deployArgs["import-map"] = `${funPath}/import_map.json`
+
+    await deploy(deployArgs)
+
+    const _fun = await studioAPI.requestJson(`/admin/projects/${PROJECT_REF}/functions`, {
+        method: 'POST',
+        body: {
+            name: functionName,
+            verify_jwt: args["verify-jwt"],
+            import_map: args["import-map"]
+        }
     })
 
     console.log(`
 
-Endpoint:%c
+Function: ${Deno.cwd()}
+
+Endpoint (v${_fun.version})%c
     https://${PROJECT_REF}.${FUNCTIONS_DOMAIN}/${functionName}
     https://${PROJECT_REF}-${functionName}.${FUNCTIONS_DOMAIN}
 
 %c${stringify(envVars)}`, 'color: lime', 'background-color: #222;color:#999')
+
+    //console.log('_fun', _fun)
 
 }

@@ -1,6 +1,12 @@
 import { API as DenoAPI } from "./api_deno.js";
 import { API as StudioAPI } from "./api_studio.js";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+import { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
+import { exists, existsSync } from "https://deno.land/std/fs/mod.ts";
+
+const error = colors.bold.red;
+const warn = colors.bold.yellow;
+const info = colors.bold.blue;
 
 export default async function _new(args) {
     const functionName = args._.shift()
@@ -10,47 +16,52 @@ export default async function _new(args) {
         Deno.exit()
     }
 
-    const TOKEN = Deno.env.get('TOKEN')
+    // const TOKEN = Deno.env.get('TOKEN')
 
-    let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
+    // let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
 
-    if (!PROJECT_REF) {
-        const studio_api = StudioAPI.fromToken(TOKEN)
-        const studio_projects = await studio_api.requestJson(`/projects`)
-        if (studio_projects.error) {
-            console.log(studio_projects)
-            Deno.exit()
-        }
-        console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+    // if (!PROJECT_REF) {
+    //     const studio_api = StudioAPI.fromToken(TOKEN)
+    //     const studio_projects = await studio_api.requestJson(`/projects`)
+    //     if (studio_projects.error) {
+    //         console.log(studio_projects)
+    //         Deno.exit()
+    //     }
+    //     console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
 
-        PROJECT_REF = prompt(`Enter project ref`)
+    //     PROJECT_REF = prompt(`Enter project ref`)
+    // }
+
+    // const studioAPI = StudioAPI.fromToken(TOKEN)
+    // const project = await studioAPI.requestJson(`/projects/${PROJECT_REF}?_data`)
+
+
+    // const DENO_DEPLOY_PROJECT = `${PROJECT_REF}-${functionName}`
+
+    // const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")
+    // const DENO_DEPLOY_ORG = Deno.env.get("DENO_DEPLOY_ORG")
+
+    // const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
+
+    // const envVars = await load({
+    //     envPath: `functions/${functionName}/.env`,
+    //     defaultsPath: `.env.defaults`,
+    //     export: false
+    // });
+
+    // const res = await denoAPI.requestJson('/projects', {
+    //     method: 'POST',
+    //     body: {
+    //         "name": DENO_DEPLOY_PROJECT,
+    //         "organizationId": DENO_DEPLOY_ORG,
+    //         "envVars": envVars
+    //     }
+    // })
+
+    if (await exists(`functions/${functionName}`)) {
+        console.error(`Function already exists`, error(`functions/${functionName}`))
+        Deno.exit()
     }
-
-    const studioAPI = StudioAPI.fromToken(TOKEN)
-    const project = await studioAPI.requestJson(`/projects/${PROJECT_REF}?_data`)
-
-
-    const DENO_DEPLOY_PROJECT = `${PROJECT_REF}-${functionName}`
-
-    const DENO_DEPLOY_TOKEN = Deno.env.get("DENO_DEPLOY_TOKEN")
-    const DENO_DEPLOY_ORG = Deno.env.get("DENO_DEPLOY_ORG")
-
-    const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
-
-    const envVars = await load({
-        envPath: `functions/${functionName}/.env`,
-        defaultsPath: `.env.defaults`,
-        export: false
-    });
-
-    const res = await denoAPI.requestJson('/projects', {
-        method: 'POST',
-        body: {
-            "name": DENO_DEPLOY_PROJECT,
-            "organizationId": DENO_DEPLOY_ORG,
-            "envVars": envVars
-        }
-    })
 
     await Deno.mkdir(`functions/${functionName}`, { recursive: true });
 
@@ -72,6 +83,6 @@ serve((req) => {
 
     await Deno.writeTextFile(`functions/${functionName}/index.js`, func_code)
 
-    console.log('new func --> ', res)
+    console.log(`Function created:`, info(`functions/${functionName}/index.js`))
 
 }
