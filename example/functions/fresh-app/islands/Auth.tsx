@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 interface EnvProps {
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
+  SUPABASE_SERVICE_KEY: string;
 }
 
 interface AuthProps {
@@ -28,6 +29,11 @@ export default function Auth(props: AuthProps) {
   const [message, setMessage] = useState<any>();
 
   useEffect(() => {
+    window.ssb = createClient(
+      props.env.SUPABASE_URL,
+      props.env.SUPABASE_SERVICE_KEY,
+    );
+
     supabase = createClient(
       props.env.SUPABASE_URL,
       props.env.SUPABASE_ANON_KEY,

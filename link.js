@@ -1,8 +1,9 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --no-check
-
 import { API as StudioAPI } from "./api_studio.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { getJson, writeJson, exists, getLogin } from "./helpers.js";
+import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
+import { colors, tty } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
+import _api from './api.js'
 
 export default async function _link(args) {
 
@@ -25,28 +26,48 @@ export default async function _link(args) {
         config.token = login.token
         config.profile = login.profile
 
-        const api = StudioAPI.fromToken(config.token)
-        const projects = await api.requestJson(`/projects`)
+        //const api = StudioAPI.fromToken(config.token)
+        //const projects = await api.requestJson(`/projects`)
 
-        const projectsList = projects.map(p => {
-            return {
-                ref: p.ref,
-                name: p.name,
-                //endpoint: p.endpoint,
-                status: p.status,
-                created: p.inserted_at
-            }
-        })
+        // const projectsList = projects.map(p => {
+        //     return {
+        //         ref: p.ref,
+        //         name: p.name,
+        //         //endpoint: p.endpoint,
+        //         status: p.status,
+        //         created: p.inserted_at
+        //     }
+        // })
 
         //console.log('init', { token, profile, projects })
 
-        console.table(projectsList)
+        //         console.table(projectsList)
 
-        const project_ref = prompt(`
-Set your project ref
-(project.ref) =`, config.project?.ref)
+        //         const project_ref = prompt(`
+        // Set your project ref
+        // (project.ref) =`, config.project?.ref)
 
-        const project = await api.requestJson(`/projects/${project_ref}?_data`)
+        //if (!PROJECT_REF || PROJECT_REF === true) {
+        const studio_api = StudioAPI.fromToken(Deno.env.get('TOKEN'))
+        const studio_projects = await studio_api.requestJson(`/projects`)
+        if (studio_projects.error) {
+            console.log(studio_projects)
+            Deno.exit()
+        }
+        // console.table(studio_projects.map(o => ({ name: o.name, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+        // PROJECT_REF = prompt(`Enter project ref`)
+
+        const project_ref = await Select.prompt({
+            message: "Select project to link",
+            options: studio_projects.map(o => ({
+                name: `${colors.bgBrightBlue.brightWhite(" " + o.ref + " ")}  ${colors.brightBlue(o.endpoint)}  ${colors.brightWhite.bold(o.name)}`,
+                value: o.ref
+            })),
+        });
+
+        //}
+
+        const project = await studio_api.requestJson(`/projects/${project_ref}?_data`)
 
         if (project.error) {
             console.error(`
@@ -78,7 +99,11 @@ Set your project ref
 
         await Deno.writeTextFile(`./.env.defaults`, stringify(defaultEnvVars));
 
-        console.log(config)
+        _api({
+            project: project.ref
+        })
+
+        // console.log(config)
 
     } catch (e) {
         console.log(`[link]`, e)

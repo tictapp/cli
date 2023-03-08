@@ -5,13 +5,14 @@ import { API as DenoAPI } from "./api_deno.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
+import { colors, tty } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
 
 export default async function _api(args) {
 
     const TOKEN = Deno.env.get('TOKEN')
 
     let PROJECT_REF = args.project || Deno.env.get('PROJECT_REF')
-    console.log('PROJECT_REF', PROJECT_REF)
+    //console.log('PROJECT_REF', PROJECT_REF)
 
     if (!PROJECT_REF || PROJECT_REF === true) {
         const studio_api = StudioAPI.fromToken(TOKEN)
@@ -43,26 +44,37 @@ export default async function _api(args) {
     const dbUri = `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
 
     console.log(`
-Name
-${project.name}
 
-Ref
-${project.ref}
+${colors.underline.bold('Name')}
+${colors.bgBlack("\n  \n   " + project.name + " \n ")}
 
-Endpoint
-https://${project.endpoint}
+${colors.underline.bold('Project Ref')}
+${colors.bgBlack("\n  \n   " + project.ref + " \n ")}
 
-Anon Key
-${project.anon_key}
+${colors.underline.bold('Anon Key')}
+${colors.bgBlack("\n  \n   " + project.anon_key + " \n ")}
 
-Service Key
-${project.service_key}
+${colors.underline.bold('Service Key')}
+${colors.bgBlack("\n  \n   " + project.service_key + " \n ")}
 
-JWT Secret
-${project.jwt_secret}
+${colors.underline.bold('JWT Secret')}
+${colors.bgBlack("\n  \n   " + project.jwt_secret + " \n ")}
 
-DB URI
-${dbUri}    
-    `)
+${colors.underline.bold('Database Connection String')}
+${colors.bgBlack("\n  \n   " + dbUri + " \n ")}
+
+${colors.bold.underline('Endpoints')}
+${colors.bgBlack(`
+
+    ${colors.dim('API')}
+    ${colors.brightBlue(`https://${project.endpoint}`)}
+
+    ${colors.dim('Studio')}
+    ${colors.brightBlue(`https://${project.endpoint.replace('.io', ".studio")}`)}
+
+    ${colors.dim('Functions')}
+    ${colors.brightBlue(`https://${project.endpoint.replace('.io', ".fun")}`)}
+`)}
+`)
 
 }

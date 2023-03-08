@@ -18,11 +18,14 @@ export default function Home() {
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
   const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_KEY") || "";
+
+  const _env = Deno.env.toObject();
 
   return (
     <>
       <Head>
-        <title>Fresh App</title>
+        <title>{SUPABASE_URL}</title>
       </Head>
       <div class="p-4 mx-auto max-w-screen-md">
         <img
@@ -31,7 +34,9 @@ export default function Home() {
           alt="the fresh logo: a sliced lemon dripping with juice"
         />
 
-        <Auth env={{ SUPABASE_URL, SUPABASE_ANON_KEY }} />
+        <h1 class="text-orange-500 font-extrabold">{SUPABASE_URL}</h1>
+
+        <Auth env={{ SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY }} />
       </div>
     </>
   );

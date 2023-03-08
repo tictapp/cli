@@ -14,6 +14,7 @@ import _upgrade from "./upgrade.js";
 import _link from "./link.js";
 import _run from "./run.js";
 import _api from "./api.js";
+import _backup from "./backup.js";
 
 import { VERSION } from "./version.js";
 
@@ -167,6 +168,9 @@ switch (subcommand) {
         break
     case "api":
         await _api(args)
+        break
+    case "backup":
+        await _backup(args)
         break
     default:
         console.log(help)

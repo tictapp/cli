@@ -71,6 +71,19 @@ export default async function (rawArgs) {
       ],
     });
     await process.status();
+
+    const binPath = path.dirname(Deno.execPath())
+
+    console.log("Creating 'tt' symlink.");
+    const process1 = Deno.run({
+      cmd: [
+        "ln",
+        "-s",
+        `${binPath}/tictapp`,
+        `${binPath}/tt`,
+      ],
+    });
+    await process1.status();
   }
 }
 

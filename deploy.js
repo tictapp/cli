@@ -4,8 +4,9 @@ import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
-import { exists } from "./helpers.js";
+import { exists, getJson } from "./helpers.js";
 import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
+import { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
 
 // psql \
 //   --single-transaction \
@@ -15,8 +16,25 @@ import { Select } from "https://deno.land/x/cliffy@v0.25.7/prompt/select.ts";
 
 export default async function _deploy(args) {
 
-    const functionName = args._.shift()
+    let functionName = args._.shift()
     let funPath = `./functions/${functionName}`
+
+    if (!functionName) {
+        funPath = Deno.cwd()
+        functionName = funPath.split("/").pop()
+
+        Deno.chdir('../../')
+
+        if (await exists('./tictapp.json')) {
+            const { project } = await getJson(`./tictapp.json`)
+            if (project) {
+                Deno.env.set('PROJECT_REF', project.ref)
+            }
+        }
+
+        console.log(colors.red(`Function Auto`), { funPath, functionName, cwd: Deno.cwd() })
+        //Deno.exit()
+    }
 
     const TOKEN = Deno.env.get('TOKEN')
 
@@ -55,23 +73,23 @@ export default async function _deploy(args) {
 
     if (args.seed) {
         // psql \
-//   --single-transaction \
-//   --variable ON_ERROR_STOP=1 \
-//   --file dump-fapp.sql \
-//   --dbname "$NEW_DB_URL"
+        //   --single-transaction \
+        //   --variable ON_ERROR_STOP=1 \
+        //   --file dump-fapp.sql \
+        //   --dbname "$NEW_DB_URL"
         const process = Deno.run({
             cmd: [
                 "psql",
-              "--single-transaction",
-              "--variable",
-              "ON_ERROR_STOP=1",
-              "--file",
-              `${funPath}/seed.sql`,
-              "--dbname",
-              `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
+                "--single-transaction",
+                "--variable",
+                "ON_ERROR_STOP=1",
+                "--file",
+                `${funPath}/seed.sql`,
+                "--dbname",
+                `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
             ],
-          });
-          await process.status();
+        });
+        await process.status();
     }
 
     const denoAPI = DenoAPI.fromToken(DENO_DEPLOY_TOKEN);
@@ -94,7 +112,7 @@ export default async function _deploy(args) {
         export: false
     });
 
-    envVars['FUNCTION_URL'] = `https://${PROJECT_REF}.${FUNCTIONS_DOMAIN}/${functionName}`
+    envVars['FUNCTION_NAME'] = functionName
 
     if (denoProject === null) {
         const res = await denoAPI.requestJson('/projects', {
@@ -123,9 +141,11 @@ export default async function _deploy(args) {
     }
 
 
-    Deno.chdir(funPath)
+    if (!args.root) {
+        Deno.chdir(funPath)
 
-    funPath = '.'
+        funPath = '.'
+    }
 
     let entrypoint = `${funPath}/index.js`
     if (!(await exists(entrypoint)))
@@ -160,19 +180,33 @@ export default async function _deploy(args) {
         body: {
             name: functionName,
             verify_jwt: args["verify-jwt"],
-            import_map: args["import-map"]
+            import_map: args["import-map"],
+            envVars
         }
     })
 
+    const subdomain = project.endpoint.replace('.tictapp.io', "")
+
     console.log(`
 
-Function: ${Deno.cwd()}
+Path
+    
+    ${Deno.cwd()}
 
-Endpoint (v${_fun.version})%c
-    https://${PROJECT_REF}.${FUNCTIONS_DOMAIN}/${functionName}
-    https://${PROJECT_REF}-${functionName}.${FUNCTIONS_DOMAIN}
+Endpoints (v${_fun.version})
 
-%c${stringify(envVars)}`, 'color: lime', 'background-color: #222;color:#999')
+    https://${subdomain}.${FUNCTIONS_DOMAIN}/${functionName}
+    https://${subdomain}-${functionName}.${FUNCTIONS_DOMAIN}
+    https://${subdomain}.functions.tictapp.io/${functionName}
+
+Logs Stream
+
+    https://${subdomain}-${functionName}.${FUNCTIONS_DOMAIN}/.logs
+
+Environment Variables
+
+    https://${subdomain}-${functionName}.${FUNCTIONS_DOMAIN}/.env
+`)
 
     //console.log('_fun', _fun)
 
