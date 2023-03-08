@@ -39,14 +39,12 @@ const help = `
 tictapp ${VERSION}
 
 Command line tool for tictapp.
-To deploy a local script:
-  deployctl deploy --project=helloworld ./main.ts
-To deploy a remote script:
-  deployctl deploy --project=helloworld https://deno.land/x/deploy/examples/hello.js
-SUBCOMMANDS:
-    deploy    Deploy a script with static files to Deno Deploy
-    upgrade   Upgrade deployctl to the given version (defaults to latest)
-    logs      Stream logs for the given project
+
+To create new function:
+    tt new hello-world
+
+To deploy a function:
+    tt deploy hello-world
 `;
 
 if (!semverGreaterThanOrEquals(Deno.version.deno, MINIMUM_DENO_VERSION)) {

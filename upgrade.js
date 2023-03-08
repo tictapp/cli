@@ -3,20 +3,21 @@
 import { error } from "./error.js";
 import { semverGreaterThanOrEquals, semverValid } from "./deps.js";
 import { VERSION } from "./version.js";
+import * as path from "https://deno.land/std@0.57.0/path/mod.ts";
 
 const help = `tictapp upgrade
-Upgrade deployctl to the given version (defaults to latest).
+Upgrade tictapp to the given version (defaults to latest).
 
 To upgrade to latest version:
-deployctl upgrade
+tictapp upgrade
 
 To upgrade to specific version:
-deployctl upgrade 1.2.3
+tictapp upgrade 1.2.3
 
 The version is downloaded from https://deno.land/x/tictapp/tictapp.js
 
 USAGE:
-    deployctl upgrade [OPTIONS] [<version>]
+  tictapp upgrade [OPTIONS] [<version>]
 
 OPTIONS:
     -h, --help        Prints help information
