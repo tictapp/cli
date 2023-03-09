@@ -43,12 +43,6 @@ const help = `
 tictapp ${VERSION}
 
 Command line tool for tictapp.
-
-To create new function:
-    tt new hello-world
-
-To deploy a function:
-    tt deploy hello-world
 `;
 
 if (!semverGreaterThanOrEquals(Deno.version.deno, MINIMUM_DENO_VERSION)) {

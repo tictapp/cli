@@ -1,4 +1,4 @@
-import { Command, CompletionsCommand, UpgradeCommand, DenoLandProvider } from "./deps.js";
+import { Command, CompletionsCommand, UpgradeCommand, DenoLandProvider, GithubProvider } from "./deps.js";
 import { VERSION } from './version.js'
 import { getLogin } from "./helpers.js";
 
@@ -37,7 +37,10 @@ await new Command()
     .command("upgrade", new UpgradeCommand({
         main: "tt.js",
         args: ["--allow-all"],
-        provider: new DenoLandProvider({ name: 'tictapp' }),
+        provider: [
+            new DenoLandProvider({ name: 'tictapp' }),
+            new GithubProvider({ repository: "serebano/tictapp-cli" }),
+        ],
     }))
     .command("completions", new CompletionsCommand())
 
