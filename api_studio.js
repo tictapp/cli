@@ -20,6 +20,11 @@ export class APIError extends Error {
         return error;
     }
 }
+export function createClient(token, endpoint) {
+    const _token = `Bearer ${token || Deno.env.get("TOKEN")}`
+    const _endpoint = endpoint || Deno.env.get("STUDIO_API_ENDPOINT") || "https://api.tictapp.studio";
+    return new API(_token, _endpoint)
+}
 
 export class API {
     endpoint = '';
@@ -68,6 +73,23 @@ export class API {
             //throw new APIError(json.code, json.message, xDenoRay);
         }
         return json;
+    }
+
+    getProjects() {
+        return this.requestJson(`/projects`)
+    }
+
+    createProject(payload) {
+        return this.requestJson(`/projects`, {
+            method: 'POST',
+            body: {
+                ...payload
+            }
+        })
+    }
+
+    getOrganizations() {
+        return this.requestJson(`/organizations`)
     }
 
 }

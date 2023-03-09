@@ -16,6 +16,10 @@ import _run from "./run.js";
 import _api from "./api.js";
 import _backup from "./backup.js";
 
+
+import _projects from "./projects/index.js";
+
+
 import { VERSION } from "./version.js";
 
 import { getJson, exists, fetchReleases, getConfigPaths, getLogin } from "./helpers.js";
@@ -170,6 +174,11 @@ switch (subcommand) {
     case "backup":
         await _backup(args)
         break
+
+    case "projects":
+        await _projects(args)
+        break
+
     default:
         console.log(help)
 }

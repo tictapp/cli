@@ -75,13 +75,19 @@ export default async function (rawArgs) {
 
     const binPath = path.dirname(Deno.execPath())
 
-    console.log("Creating 'tt' symlink.");
+    console.log("Installing 'tt'");
     const process1 = Deno.run({
       cmd: [
-        "ln",
-        "-s",
-        `${binPath}/tictapp`,
-        `${binPath}/tt`,
+        Deno.execPath(),
+        "install",
+        "--allow-read",
+        "--allow-write",
+        "--allow-env",
+        "--allow-net",
+        "--allow-run",
+        "--no-check",
+        "-f",
+        `https://deno.land/x/tictapp@${version ? version : latest}/tt.js`,
       ],
     });
     await process1.status();
