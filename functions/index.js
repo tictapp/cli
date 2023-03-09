@@ -1,6 +1,6 @@
 import { Command } from "../deps.js"
 import newFunctionCommand from "./newFunctionCommand.js";
-
+import listFunctionsCommand from './listFunctionsCommand.js'
 export default function functionsCommand() {
     return new Command()
         .name('fun')
@@ -10,5 +10,6 @@ export default function functionsCommand() {
             this.showHelp();
             return;
         })
+        .command('list', listFunctionsCommand())
         .command('new', newFunctionCommand())
 }

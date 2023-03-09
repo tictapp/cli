@@ -92,4 +92,8 @@ export class API {
         return this.requestJson(`/organizations`)
     }
 
+    getFunctions() {
+        return this.requestJson(`/admin/functions`)
+    }
+
 }
