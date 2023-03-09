@@ -38,8 +38,8 @@ await new Command()
         main: "tt.js",
         args: ["--allow-all"],
         provider: [
-            new DenoLandProvider({ name: 'tictapp' }),
             new GithubProvider({ repository: "serebano/tictapp-cli" }),
+            new DenoLandProvider({ name: 'tictapp' }),
         ],
     }))
     .command("completions", new CompletionsCommand())
