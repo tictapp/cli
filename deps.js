@@ -31,7 +31,7 @@ export { Spinner, wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 export { generatePassword } from "https://deno.land/x/pass/mod.ts";
 
 
-export { Command, CompletionsCommand } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
+export { Command, CompletionsCommand, ValidationError } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
 export {
     Input,
     Select,

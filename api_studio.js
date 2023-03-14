@@ -79,6 +79,11 @@ export class API {
         return this.requestJson(`/projects`)
     }
 
+    getProject(ref, _data) {
+        return this.requestJson(`/projects/${ref}${_data ? '?_data' : ''}`)
+    }
+
+
     createProject(payload) {
         return this.requestJson(`/projects`, {
             method: 'POST',

@@ -1,10 +1,11 @@
-import { Command, CompletionsCommand, UpgradeCommand, DenoLandProvider, GithubProvider, colors } from "./deps.js";
+import { Command, ValidationError, CompletionsCommand, UpgradeCommand, DenoLandProvider, GithubProvider, colors } from "./deps.js";
 import { VERSION } from './version.js'
 import { getLogin, getJson, exists } from "./helpers.js";
 
 import projectsCommand from './projects/index.js'
 import functionsCommand from "./functions/index.js";
 import statusCommand from './status/index.js'
+import linkCommand from './link/index.js'
 
 
 const login = await getLogin()
@@ -28,30 +29,37 @@ await new Command()
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
         //default: false
         async action(options) {
-            Deno.chdir(options.workdir)
+            try {
+                Deno.chdir(options.workdir)
+            } catch (e) {
+                throw new ValidationError(e)
+            }
+
             if (await exists('./tictapp.json')) {
 
-                const json = await getJson(`./tictapp.json`)
-
-                const { project } = json
+                const { project } = await getJson(`./tictapp.json`)
 
                 if (project) {
                     Deno.env.set('PROJECT_REF', project.ref)
                 }
 
             }
-            console.log(`Project path: ${colors.magenta(Deno.cwd())}`, Deno.env.get('PROJECT_REF'))
+            console.log(`Project path: ${colors.magenta(Deno.cwd())}`)
+            if (Deno.env.get('PROJECT_REF'))
+                console.log(`${colors.green(`https://tictapp.studio/project/${Deno.env.get('PROJECT_REF')}`)}`)
         }
     })
     .arguments("[command]")
-    .action(function (...a) {
+    .action(function () {
         //console.log('MAIN action', a)
         this.showHelp();
         return;
     })
+    .command('link', linkCommand())
     .command('projects', projectsCommand())
     .command('functions', functionsCommand())
     .command('status', statusCommand())
+    .command("completions", new CompletionsCommand())
     .command("upgrade", new UpgradeCommand({
         main: "tt.js",
         args: ["--allow-all"],
@@ -60,6 +68,5 @@ await new Command()
             new DenoLandProvider({ name: 'tictapp' }),
         ],
     }))
-    .command("completions", new CompletionsCommand())
 
     .parse(Deno.args);

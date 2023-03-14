@@ -12,9 +12,8 @@ export default function deployFunctionCommand() {
         .option("-p, --project [project:string]", "Specify project reference", {
             //default: false
         })
-        .option("-j, --verify-jwt", "Enable jwt verification", {
-            //default: false
-        })
+        .option("-j, --verify-jwt", "Enable jwt verification")
+        .option("-r, --root", "Deploy entire functions folder")
         .option("--import-map", "Import map")
         .action(async (options, name) => {
             await deployFunctionAction(name, options)

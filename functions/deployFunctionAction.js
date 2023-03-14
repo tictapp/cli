@@ -1,5 +1,4 @@
 import { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
-import { wait } from "../deps.js";
 import { selectProject, exists } from "../helpers.js";
 import { API as StudioAPI } from "../api_studio.js";
 import { load as loadEnv } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
@@ -17,6 +16,9 @@ export default async function deployFunctionAction(name, options) {
     if (!options.root) {
         Deno.chdir(func_path)
         func_path = '.'
+    } else {
+        Deno.chdir('./functions')
+        func_path = `./${func_slug}`
     }
 
     //console.log(`Working Directory`, Deno.cwd())
@@ -35,7 +37,7 @@ export default async function deployFunctionAction(name, options) {
     //const func = await studioAPI.requestJson(`/admin/projects/${project_ref}/functions/${func_slug}`)
 
     const envVars = await loadEnv({
-        envPath: `functions/${func_slug}/.env`,
+        envPath: `${func_path}/.env`,
         defaultsPath: `.env.defaults`,
         export: false
     });
@@ -83,7 +85,7 @@ export default async function deployFunctionAction(name, options) {
     await denoDeployCmd(deployArgs)
 
 
-    console.log(deployArgs)
+    //console.log(deployArgs)
 
     //console.log('options', newFunc, options, project_ref)
 
