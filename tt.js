@@ -1,6 +1,6 @@
-import { Command, CompletionsCommand, UpgradeCommand, DenoLandProvider, GithubProvider } from "./deps.js";
+import { Command, CompletionsCommand, UpgradeCommand, DenoLandProvider, GithubProvider, colors } from "./deps.js";
 import { VERSION } from './version.js'
-import { getLogin } from "./helpers.js";
+import { getLogin, getJson, exists } from "./helpers.js";
 
 import projectsCommand from './projects/index.js'
 import functionsCommand from "./functions/index.js";
@@ -25,9 +25,27 @@ await new Command()
     .version(VERSION)
     .description("Command line interface for tictapp")
     .globalOption("-d, --debug", "Enable debug output.")
+    .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
+        //default: false
+        async action(options) {
+            Deno.chdir(options.workdir)
+            if (await exists('./tictapp.json')) {
+
+                const json = await getJson(`./tictapp.json`)
+
+                const { project } = json
+
+                if (project) {
+                    Deno.env.set('PROJECT_REF', project.ref)
+                }
+
+            }
+            console.log(`Project path: ${colors.magenta(Deno.cwd())}`, Deno.env.get('PROJECT_REF'))
+        }
+    })
     .arguments("[command]")
     .action(function (...a) {
-        console.log('MAIN action', a)
+        //console.log('MAIN action', a)
         this.showHelp();
         return;
     })

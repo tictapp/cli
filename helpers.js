@@ -1,5 +1,7 @@
 import { join } from "./deps.js";
 import { getVersions } from "./upgrade.js";
+import { API as StudioAPI } from "./api_studio.js";
+import { Select } from "./deps.js";
 
 export function getConfigPaths() {
     const homeDir = Deno.build.os == "windows"
@@ -59,4 +61,22 @@ export async function exists(path) {
 
 export async function writeJson(filePath, o) {
     await Deno.writeTextFile(filePath, JSON.stringify(o, null, 4));
+}
+
+export async function selectProject() {
+    const TOKEN = Deno.env.get('TOKEN')
+
+    const studio_api = StudioAPI.fromToken(TOKEN)
+    const studio_projects = await studio_api.requestJson(`/projects`)
+    if (studio_projects.error) {
+        console.log(studio_projects)
+        Deno.exit()
+    }
+    // console.table(studio_projects.map(o => ({ name: o.name, ref: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })))
+
+    // PROJECT_REF = prompt(`Enter project ref`)
+    return await Select.prompt({
+        message: "Pick a project",
+        options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name}`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
+    });
 }

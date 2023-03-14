@@ -14,6 +14,8 @@ export {
     red,
     yellow,
 } from "https://deno.land/std@0.170.0/fmt/colors.ts";
+
+
 export { parse as parseArgs } from "https://deno.land/std@0.170.0/flags/mod.ts";
 export { TextLineStream } from "https://deno.land/std@0.170.0/streams/text_line_stream.ts";
 
@@ -35,6 +37,7 @@ export {
     Select,
     prompt,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
+export { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
 
 export {
     DenoLandProvider,

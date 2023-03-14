@@ -1,6 +1,8 @@
 import { Command } from "../deps.js"
 import newFunctionCommand from "./newFunctionCommand.js";
 import listFunctionsCommand from './listFunctionsCommand.js'
+import deployFunctionsCommand from './deployFunctionCommand.js'
+
 export default function functionsCommand() {
     return new Command()
         .name('fun')
@@ -12,4 +14,5 @@ export default function functionsCommand() {
         })
         .command('list', listFunctionsCommand())
         .command('new', newFunctionCommand())
+        .command('deploy', deployFunctionsCommand())
 }

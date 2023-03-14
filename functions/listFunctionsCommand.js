@@ -22,12 +22,13 @@ export default function listFunctionsCommand() {
                 fun.name,
                 fun.version,
                 fun.endpoint,
+                fun.verify_jwt,
                 fun.project.organization?.name,
                 new Date(fun.updated_at).toLocaleString()
             ]))
 
             new Table()
-                .header(["ID", "Project", "Name", "Version", "Endpoint", "Organization", "Updated"])
+                .header(["ID", "Project", "Name", "Version", "Endpoint", "Verify JWT", "Organization", "Updated"])
                 .body(body)
                 //.maxColWidth(10)
                 .padding(2)

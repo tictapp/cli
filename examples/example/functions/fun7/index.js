@@ -67,6 +67,7 @@ serve(async (req, connInfo) => {
       )
     }
   }
+
   const headers = {}
   // Print the headers of the headers object.
   for (const [key, value] of req.headers.entries()) {
