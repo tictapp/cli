@@ -24,7 +24,7 @@ export default async function loginAction(options) {
     }
 
     if (options.reset) {
-        const confirmed = await Confirm.prompt(`Login data will be removed. Are you sure?`);
+        const confirmed = await Confirm.prompt(`${loginPath} will be removed. Are you sure?`);
         if (confirmed) {
             Deno.removeSync(loginPath)
             console.log('Login data removed', loginPath)
