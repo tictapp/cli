@@ -30,14 +30,22 @@ if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
 
-await new Command()
+const tt = new Command()
     // Main command.
     .name("tt")
     .version(VERSION)
-    .meta('Profile', login && colors.cyan(login.profile.primary_email))
-    .meta('Project', project && `${colors.bold(project.name || '*')} ${colors.dim(project.ref)} ${colors.green(project.endpoint)}`)
-    .meta('Workdir', colors.dim(Deno.cwd()))
-    .description("Command line interface for tictapp")
+
+if (login) {
+    tt.meta('Profile', login && colors.cyan(login.profile.primary_email))
+}
+
+if (project) {
+    tt.meta('Project', project && `${colors.bold(project.name || '*')} ${colors.dim(project.ref)} ${colors.green(project.endpoint)}`)
+}
+
+tt.meta('Workdir', colors.dim(Deno.cwd()))
+
+tt.description("Command line interface for tictapp")
     //.meta('Account', login ? login.profile.primary_email : 'Unauthorized')
     .globalOption("-d, --debug", "Enable debug output.")
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
@@ -65,16 +73,11 @@ await new Command()
             this.meta('Project', project
                 ? `${colors.bold(project.name || '*')} ${colors.dim(project.ref)} ${colors.green(project.endpoint)}`
                 : colors.dim(`Not linked`))
-
-            //console.log(`Project path: ${colors.magenta(Deno.cwd())}`)
-
-            //if (Deno.env.get('PROJECT_REF'))
-            //    console.log(`${colors.green(`https://tictapp.studio/project/${Deno.env.get('PROJECT_REF')}`)}`)
         }
     })
     .arguments("[command]")
-    .action(function (...a) {
-        console.log('MAIN action', a)
+    .action(function (a) {
+        //console.log('MAIN action', a)
         this.showHelp();
         return;
     })
@@ -97,3 +100,5 @@ await new Command()
     }))
 
     .parse(Deno.args);
+
+await tt
