@@ -61,17 +61,23 @@ export class API {
 
     async requestJson(path, opts) {
         const res = await this.request(path, opts);
+        if (res.status !== 200) {
+            //const xDenoRay = res.headers.get("x-deno-ray");
+            //return json
+            throw new Error("" + res.status + " - " + `${this.endpoint}${path}`);
+        }
+
         if (res.headers.get("Content-Type") !== "application/json") {
             const text = await res.text();
             throw new Error(`Expected JSON, got '${res.headers.get("Content-Type")}'`);
         }
         const json = await res.json();
 
-        if (res.status !== 200) {
-            const xDenoRay = res.headers.get("x-deno-ray");
-            return json
-            //throw new APIError(json.code, json.message, xDenoRay);
-        }
+        // if (res.status !== 200) {
+        //     const xDenoRay = res.headers.get("x-deno-ray");
+        //     return json
+        //     //throw new APIError(json.code, json.message, xDenoRay);
+        // }
         return json;
     }
 

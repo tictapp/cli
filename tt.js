@@ -16,15 +16,13 @@ if (login) {
 }
 
 //console.log('login', login)
-
+let project
 if (await exists('./tictapp.json')) {
-
-    const { project } = await getJson(`./tictapp.json`)
-
-    if (project) {
+    const cfg = await getJson(`./tictapp.json`)
+    if (cfg && cfg.project) {
+        project = cfg.project
         Deno.env.set('PROJECT_REF', project.ref)
     }
-
 }
 
 
@@ -36,11 +34,14 @@ await new Command()
     // Main command.
     .name("tt")
     .version(VERSION)
+    .meta('Profile', login && colors.cyan(login.profile.primary_email))
+    .meta('Project', project && `${colors.bold(project.name || '*')} ${colors.dim(project.ref)} ${colors.green(project.endpoint)}`)
+    .meta('Workdir', colors.dim(Deno.cwd()))
     .description("Command line interface for tictapp")
-    .meta('Account', login ? login.profile.primary_email : 'Unauthorized')
+    //.meta('Account', login ? login.profile.primary_email : 'Unauthorized')
     .globalOption("-d, --debug", "Enable debug output.")
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
-        default: '.',
+        default: './',
         async action(options) {
             try {
                 Deno.chdir(options.workdir)
@@ -48,38 +49,50 @@ await new Command()
                 throw new ValidationError(e)
             }
 
+            project = null
+            Deno.env.delete('PROJECT_REF')
+
             if (await exists('./tictapp.json')) {
-
-                const { project } = await getJson(`./tictapp.json`)
-
-                if (project) {
+                const cfg = await getJson(`./tictapp.json`)
+                if (cfg && cfg.project) {
+                    project = cfg.project
                     Deno.env.set('PROJECT_REF', project.ref)
                 }
-
             }
-            console.log(`Project path: ${colors.magenta(Deno.cwd())}`)
-            if (Deno.env.get('PROJECT_REF'))
-                console.log(`${colors.green(`https://tictapp.studio/project/${Deno.env.get('PROJECT_REF')}`)}`)
+            // console.log(this)
+
+            this.meta('Workdir', colors.dim(Deno.cwd()))
+            this.meta('Project', project
+                ? `${colors.bold(project.name || '*')} ${colors.dim(project.ref)} ${colors.green(project.endpoint)}`
+                : colors.dim(`Not linked`))
+
+            //console.log(`Project path: ${colors.magenta(Deno.cwd())}`)
+
+            //if (Deno.env.get('PROJECT_REF'))
+            //    console.log(`${colors.green(`https://tictapp.studio/project/${Deno.env.get('PROJECT_REF')}`)}`)
         }
     })
     .arguments("[command]")
-    .action(function () {
-        //console.log('MAIN action', a)
+    .action(function (...a) {
+        console.log('MAIN action', a)
         this.showHelp();
         return;
     })
+
     .command('login', loginCommand())
     .command('link', linkCommand())
+    .command('status', statusCommand())
+
     .command('projects', projectsCommand())
     .command('functions', functionsCommand())
-    .command('status', statusCommand())
+
     .command("completions", new CompletionsCommand())
     .command("upgrade", new UpgradeCommand({
         main: "tt.js",
         args: ["--allow-all"],
         provider: [
-            new GithubProvider({ repository: "serebano/tictapp-cli" }),
             new DenoLandProvider({ name: 'tictapp' }),
+            new GithubProvider({ repository: "serebano/tictapp-cli" })
         ],
     }))
 

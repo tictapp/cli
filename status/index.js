@@ -1,4 +1,4 @@
-import { Command, wait } from "../deps.js";
+import { Command, ValidationError } from "../deps.js";
 import statusAction from '../status.js'
 
 export default function statusCommand() {
@@ -6,6 +6,10 @@ export default function statusCommand() {
         .name("status")
         .description("View current auth status")
         .action(async function () {
-            return await statusAction()
+            try {
+                return await statusAction()
+            } catch (e) {
+                throw new ValidationError(e)
+            }
         })
 }
