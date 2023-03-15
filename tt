@@ -3,3 +3,16 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 exec deno run --allow-read --allow-write --allow-net --allow-env --allow-run --no-config "$SCRIPT_DIR/tt.js" "$@"
+
+
+ttd () {
+  docker run \
+    --interactive \
+    --tty \
+    --rm \
+    --volume $PWD:/app \
+    --volume $HOME/.deno:/deno-dir \
+    --workdir /app \
+    tt \
+    "$@"
+}

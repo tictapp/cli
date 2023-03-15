@@ -7,7 +7,9 @@ export function getConfigPaths() {
     const homeDir = Deno.build.os == "windows"
         ? Deno.env.get("USERPROFILE")
         : Deno.env.get("HOME");
-    const configDir = join(homeDir, ".deno", "tictapp");
+    const configDir = Deno.env.get("DENO_DIR")
+        ? join(Deno.env.get("DENO_DIR"), "tictapp")
+        : join(homeDir, ".deno", "tictapp");
 
     return {
         configDir,

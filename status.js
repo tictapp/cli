@@ -1,4 +1,4 @@
-import { getJson, exists, getLogin } from "./helpers.js";
+import { getJson, exists, getLogin, getConfigPaths } from "./helpers.js";
 import { API as StudioAPI } from "./api_studio.js";
 import { API as DenoAPI } from "./api_deno.js";
 import { wait } from "./deps.js";
@@ -9,6 +9,8 @@ export default async function status() {
     const spinner = wait(`Fetching account information`).start()
 
     const login = await getLogin()
+
+    console.log(getConfigPaths())
 
     if (login) {
         //console.log(login)

@@ -1,5 +1,12 @@
 # tt - tictapp cli
 
+```
+apt update
+apt install curl unzip -y
+curl -fsSL https://deno.land/install.sh | sh
+echo 'export DENO_INSTALL="/root/.deno"' >> ~/.bashrc && echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
 ```bash
 deno install --allow-all --no-check -r -f https://deno.land/x/tictapp/tt.js
 ```
