@@ -6,15 +6,27 @@ import projectsCommand from './projects/index.js'
 import functionsCommand from "./functions/index.js";
 import statusCommand from './status/index.js'
 import linkCommand from './link/index.js'
-
+import loginCommand from './loginCommand/index.js'
 
 const login = await getLogin()
 
 if (login) {
     Deno.env.set('TOKEN', login.token)
     Deno.env.set('DENO_DEPLOY_TOKEN', login.deno_deploy_token)
-    Deno.env.set('DENO_DEPLOY_ORG', login.deno_deploy_org)
 }
+
+//console.log('login', login)
+
+if (await exists('./tictapp.json')) {
+
+    const { project } = await getJson(`./tictapp.json`)
+
+    if (project) {
+        Deno.env.set('PROJECT_REF', project.ref)
+    }
+
+}
+
 
 if (!Deno.env.get("FUNCTIONS_DOMAIN"))
     Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
@@ -25,9 +37,10 @@ await new Command()
     .name("tt")
     .version(VERSION)
     .description("Command line interface for tictapp")
+    .meta('Account', login ? login.profile.primary_email : 'Unauthorized')
     .globalOption("-d, --debug", "Enable debug output.")
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
-        //default: false
+        default: '.',
         async action(options) {
             try {
                 Deno.chdir(options.workdir)
@@ -55,6 +68,7 @@ await new Command()
         this.showHelp();
         return;
     })
+    .command('login', loginCommand())
     .command('link', linkCommand())
     .command('projects', projectsCommand())
     .command('functions', functionsCommand())

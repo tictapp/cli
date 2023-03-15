@@ -97,8 +97,10 @@ export class API {
         return this.requestJson(`/organizations`)
     }
 
-    getFunctions() {
-        return this.requestJson(`/admin/functions`)
+    getFunctions(project_ref) {
+        return this.requestJson(project_ref
+            ? `/admin/projects/${project_ref}/functions`
+            : `/admin/functions`)
     }
 
 }

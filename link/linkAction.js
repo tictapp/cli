@@ -1,10 +1,14 @@
 import { selectProject, writeJson } from '../helpers.js'
 import { API as StudioAPI } from "../api_studio.js";
 import { stringify } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+import { colors } from '../deps.js';
 
 const configFile = `tictapp.json`
 
 export default async function linkAction() {
+    if (Deno.env.get('PROJECT_REF'))
+        console.log(`   ${colors.green(`Linked project: https://tictapp.studio/project/${Deno.env.get('PROJECT_REF')}`)}`)
+
     const project_ref = await selectProject()
 
     console.log(`project_ref`, project_ref)

@@ -76,7 +76,7 @@ export async function selectProject() {
 
     // PROJECT_REF = prompt(`Enter project ref`)
     return await Select.prompt({
-        message: "Pick a project",
-        options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name}`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
+        message: "Select project to continue",
+        options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name} (${o.status})`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
     });
 }

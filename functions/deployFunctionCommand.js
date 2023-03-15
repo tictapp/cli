@@ -9,9 +9,7 @@ export default function deployFunctionCommand() {
         .name("deploy")
         .description("Deploy function")
         .arguments('<name:string>')
-        .option("-p, --project [project:string]", "Specify project reference", {
-            //default: false
-        })
+        .option("-p, --project [project:string]", "Specify project reference")
         .option("-j, --verify-jwt", "Enable jwt verification")
         .option("-r, --root", "Deploy entire functions folder")
         .option("--import-map", "Import map")

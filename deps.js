@@ -35,6 +35,8 @@ export { Command, CompletionsCommand, ValidationError } from "https://deno.land/
 export {
     Input,
     Select,
+    Secret,
+    Confirm,
     prompt,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
 export { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
