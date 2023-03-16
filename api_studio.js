@@ -64,7 +64,15 @@ export class API {
         if (res.status !== 200) {
             //const xDenoRay = res.headers.get("x-deno-ray");
             //return json
-            throw new Error("" + res.status + " - " + `${this.endpoint}${path}`);
+            let data
+            if (res.headers.get("Content-Type") === "application/json") {
+                data = await res.json()
+            }
+            console.error(data)
+            if (data.error) {
+                throw new Error(data.error.message || data.error)
+            }
+            throw new Error(data.message || "" + res.status + " - " + `${this.endpoint}${path}`);
         }
 
         if (res.headers.get("Content-Type") !== "application/json") {

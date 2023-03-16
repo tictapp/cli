@@ -40,6 +40,7 @@ export {
     prompt,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
 export { colors } from "https://deno.land/x/cliffy@v0.25.7/ansi/mod.ts";
+export { Table } from "https://deno.land/x/cliffy@v0.25.7/table/mod.ts";
 
 export {
     DenoLandProvider,

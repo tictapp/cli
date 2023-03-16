@@ -16,3 +16,4 @@ set -e
 #exec deno run --allow-read --allow-write --allow-net --allow-env --allow-run --no-config "./tt.js" "$@"
 
 exec deno run --allow-all --no-config 'https://deno.land/x/tictapp/tt.js' "$@"
+#exec deno run --allow-all --no-config '/tt/tt.js' "$@"

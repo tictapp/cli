@@ -2,11 +2,13 @@ import { Command, ValidationError, CompletionsCommand, UpgradeCommand, DenoLandP
 import { VERSION } from './version.js'
 import { getLogin, getJson, exists } from "./helpers.js";
 
-import projectsCommand from './projects/index.js'
-import functionsCommand from "./functions/index.js";
-import statusCommand from './status/index.js'
-import linkCommand from './link/index.js'
+import projectsCommand from './projectsCommand/index.js'
+import functionsCommand from "./functionsCommand/index.js";
+
+import statusCommand from './statusCommand/index.js'
 import loginCommand from './loginCommand/index.js'
+import linkCommand from './linkCommand/index.js'
+
 
 const login = await getLogin()
 
