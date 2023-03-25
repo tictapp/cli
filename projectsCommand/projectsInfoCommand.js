@@ -6,7 +6,7 @@ export default function projectsInfoCommand() {
     return new Command()
         .name("info")
         .description("Get project info")
-        .option('-p --project <name:string>')
+        .option('-p --project <name:string>', 'Prpject ref')
         .action(async (options) => {
 
             let project_ref = Deno.env.get('PROJECT_REF')
@@ -24,25 +24,30 @@ export default function projectsInfoCommand() {
 
             const dbUri = `postgresql://supabase_admin:${project.db_pass}@db.tictapp.io:${project.db_port}/postgres`
 
+            // ${colors.bold('Name')}
+            // ${("\n  \n   " + project.name + " \n ")}
+
+            // ${colors.bold('Project Ref')}
+            // ${("\n  \n   " + project.ref + " \n ")}
+
+
             console.log(`
 
-${colors.underline.bold('Name')}
-${colors.bgBlack("\n  \n   " + project.name + " \n ")}
+${colors.underline.bold('JWT Keys')}
+${(`
 
-${colors.underline.bold('Project Ref')}
-${colors.bgBlack("\n  \n   " + project.ref + " \n ")}
+    ${colors.bold(`Anon Key`)}
+    ${colors.blue(project.anon_key)}
 
-${colors.underline.bold('Anon Key')}
-${colors.bgBlack("\n  \n   " + project.anon_key + " \n ")}
+    ${colors.bold(`Service Key`)}
+    ${colors.blue(project.service_key)}
 
-${colors.underline.bold('Service Key')}
-${colors.bgBlack("\n  \n   " + project.service_key + " \n ")}
-
-${colors.underline.bold('JWT Secret')}
-${colors.bgBlack("\n  \n   " + project.jwt_secret + " \n ")}
+    ${colors.bold(`JWT Secret`)}
+    ${colors.blue(project.jwt_secret)}
+`)}
 
 ${colors.underline.bold('Database Connection')}
-${colors.bgBlack(`
+${(`
 
     ${colors.bold(`Connection URI`)}
     ${colors.blue("" + dbUri)}
@@ -58,7 +63,7 @@ ${colors.bgBlack(`
 `)}
 
 ${colors.bold.underline('Endpoints')}
-${colors.bgBlack(`
+${(`
 
     ${colors.dim('API')}
     ${colors.brightBlue(`https://${project.endpoint}`)}

@@ -78,7 +78,7 @@ tt.description("Command line interface for tictapp")
         }
     })
     .arguments("[command]")
-    .action(function (a) {
+    .action(function () {
         //console.log('MAIN action', a)
         this.showHelp();
         return;

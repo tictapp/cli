@@ -20,7 +20,7 @@ export function getConfigPaths() {
 }
 
 export async function getLogin() {
-    const { loginPath, configDir } = getConfigPaths();
+    const { loginPath } = getConfigPaths();
     // Try to read the json file.
     const loginInfoJson = await Deno.readTextFile(loginPath).catch((error) => {
         if (error.name == "NotFound") return null;
@@ -80,6 +80,7 @@ export async function selectProject() {
     // PROJECT_REF = prompt(`Enter project ref`)
     return await Select.prompt({
         message: "Select project to continue",
+        search: true,
         options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name} (${o.status})`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
     });
 }

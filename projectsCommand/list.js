@@ -5,7 +5,7 @@ export default function projectsList() {
     return new Command()
         .name("list")
         .description("List all tictapp projects the logged-in user can access.")
-        .action(async (options, ...args) => {
+        .action(async () => {
 
             try {
                 const api = createClient()
