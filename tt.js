@@ -8,6 +8,7 @@ import functionsCommand from "./functionsCommand/index.js";
 import statusCommand from './statusCommand/index.js'
 import loginCommand from './loginCommand/index.js'
 import linkCommand from './linkCommand/index.js'
+import genCommand from './genCommand/index.js'
 
 
 const login = await getLogin()
@@ -89,6 +90,7 @@ https://github.com/tictapp/cli`)
     .command('login', loginCommand())
     .command('link', linkCommand())
     .command('status', statusCommand())
+    .command('gen', genCommand())
 
     .command('projects', projectsCommand())
     .command('functions', functionsCommand())

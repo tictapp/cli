@@ -5,7 +5,7 @@ import { colors, Command } from '../deps.js'
 export default function projectsInfoCommand() {
     return new Command()
         .name("types")
-        .description("Generate types for TypeScript")
+        .description("Generate database types for TypeScript")
         .arguments('<file:file>', 'Types file path')
         .option('-p, --project <name:string>', 'Project ref')
         .action(async (options, filepath) => {
