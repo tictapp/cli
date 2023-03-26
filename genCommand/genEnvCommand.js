@@ -23,6 +23,8 @@ export default function genEnvCommand() {
             const project = await studioAPI.getProject(project_ref, true)
 
             const envObj = {
+                PUBLIC_SUPABASE_REF: project.ref,
+                PUBLIC_SUPABASE_STUDIO: `https://${project.endpoint.replace(".io", ".studio")}`,
                 PUBLIC_SUPABASE_URL: `https://${project.endpoint}`,
                 PUBLIC_SUPABASE_ANON_KEY: project.anon_key,
                 SUPABASE_SERVICE_KEY: project.service_key
