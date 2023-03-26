@@ -13,8 +13,8 @@ export default function projectsNew() {
     return new Command()
         .name("new")
         .description("Create new project")
-        .arguments('<name:string>')
-        .action(async (options, name) => {
+        .arguments('<name:string>', 'Project name')
+        .action(async (_options, name) => {
             //console.log("Create new project called", name)
 
 

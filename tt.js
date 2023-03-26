@@ -47,7 +47,9 @@ if (project) {
 
 tt.meta('Workdir', colors.dim(Deno.cwd()))
 
-tt.description("Command line interface for tictapp")
+tt.description(`Command line interface for tictapp
+https://github.com/tictapp/cli`)
+
     //.meta('Account', login ? login.profile.primary_email : 'Unauthorized')
     .globalOption("-d, --debug", "Enable debug output.")
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
