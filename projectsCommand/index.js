@@ -2,6 +2,7 @@ import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
 import projectsList from "./list.js";
 import projectsNew from "./new.js";
 import projectsInfoCommand from "./projectsInfoCommand.js";
+import projectsTypesCommand from "./projectsTypesCommand.js";
 
 export default function projects() {
 
@@ -17,5 +18,6 @@ export default function projects() {
         .command('info', projectsInfoCommand())
         .command('list', projectsList())
         .command('new', projectsNew())
+        .command('types', projectsTypesCommand())
 
 }

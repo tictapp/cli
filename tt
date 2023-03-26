@@ -4,3 +4,5 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 #echo "  (dev)"
 #exec deno run --allow-read --allow-write --allow-net --allow-env --allow-run --no-config "$SCRIPT_DIR/tt.js" "$@"
 exec deno run --allow-all --no-config $SCRIPT_DIR/tt.js "$@"
+
+# supabase gen types typescript --db-url "postgresql://supabase_admin:wMx87nm5qusDz6qS@db.tictapp.io:30005/postgres" > ./examples/types.ts
