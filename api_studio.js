@@ -68,7 +68,7 @@ export class API {
             if (res.headers.get("Content-Type") === "application/json") {
                 data = await res.json()
             }
-            console.error(data)
+            //console.error(data)
             if (data.error) {
                 throw new Error(data.error.message || data.error)
             }

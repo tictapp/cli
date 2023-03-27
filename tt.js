@@ -9,13 +9,19 @@ import statusCommand from './statusCommand/index.js'
 import loginCommand from './loginCommand/index.js'
 import linkCommand from './linkCommand/index.js'
 import genCommand from './genCommand/index.js'
+import vercelCommand from './vercelCommand/index.js'
 
 
 const login = await getLogin()
 
 if (login) {
     Deno.env.set('TOKEN', login.token)
-    Deno.env.set('DENO_DEPLOY_TOKEN', login.deno_deploy_token)
+
+    if (login.deno_deploy_token)
+        Deno.env.set('DENO_DEPLOY_TOKEN', login.deno_deploy_token)
+
+    if (login.vercel_token)
+        Deno.env.set('VERCEL_ACCESS_TOKEN', login.vercel_token)
 }
 
 //console.log('login', login)
@@ -91,6 +97,7 @@ https://github.com/tictapp/cli`)
     .command('link', linkCommand())
     .command('status', statusCommand())
     .command('gen', genCommand())
+    .command('vercel', vercelCommand())
 
     .command('projects', projectsCommand())
     .command('functions', functionsCommand())

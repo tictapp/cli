@@ -15,7 +15,7 @@ export default async function loginAction(options) {
         console.error(error);
     });
 
-    let loginInfo = { token: '', deno_deploy_token: '' }
+    let loginInfo = { token: '', deno_deploy_token: '', vercel_token: '' }
 
     if (loginInfoJson) {
         loginInfo = JSON.parse(loginInfoJson)
@@ -70,6 +70,38 @@ export default async function loginAction(options) {
                 const denoAPI = DenoAPI.fromToken(token);
                 await denoAPI.requestJson('/organizations');
 
+                return true
+            } catch (e) {
+                return e.message
+            }
+        },
+        transform: (value) => {
+            return value ? value : loginInfo.deno_deploy_token
+        }
+    })
+
+    result.vercel_token = await Input.prompt({
+        name: "vercel_token",
+        message: "Your vercel access token",
+        hint: 'You can generate an access token from https://vercel.com/account/tokens',
+        suggestions: [loginInfo.vercel_token],
+        validate: async function (token) {
+            if (!token) token = loginInfo.vercel_token
+            try {
+                const res = await fetch('https://api.vercel.com/v6/deployments',
+                    {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+
+                if (res.status !== 200)
+                    throw new ValidationError("Vercel:" + res.status + " - " + res.statusText)
+
+                const result = await res.json()
+                if (result.error) {
+                    throw new ValidationError(result.error.message)
+                }
                 return true
             } catch (e) {
                 return e.message
