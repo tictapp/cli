@@ -1,6 +1,8 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
-import { ValidationError } from "../deps.js";
+import { ValidationError, colors } from "../deps.js";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
+import { Table } from "../deps.js";
+import { timeAgo } from "https://deno.land/x/time_ago/mod.ts";
 
 function _action(_, cmd) {
     if (cmd) {
@@ -40,6 +42,47 @@ export default function vercel() {
         .description("Vercel management api")
         .arguments("[command]")
         .action(_action)
+        .command('projects', new Command()
+            .description("Get projects")
+            .action(async () => {
+                const res = await fetch(
+                    'https://api.vercel.com/v6/projects',
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${Deno.env.get("VERCEL_ACCESS_TOKEN")}`,
+                        }
+                    }
+                );
+                const result = await res.json()
+                //console.log(result)
+                const projects = result.projects.map(({ name, link, latestDeployments, updatedAt }) => {
+                    const deployments = latestDeployments.map(({ url, target, alias }) => {
+                        return {
+                            url,
+                            target,
+                            alias
+                        }
+                    })
+                    const latestDeployment = deployments.shift()
+
+                    return [
+                        colors.bold(name),
+                        `https://${latestDeployment.alias[0]}`,
+                        //target: latestDeployment.target,
+                        link ? `${link?.type}/${link?.org}/${link?.repo}` : `(unlinked)`,
+                        timeAgo(new Date(updatedAt))
+                    ]
+                })
+                console.log("\n")
+                new Table()
+                    .indent(3)
+                    .header([colors.blue.bold("Name"), colors.blue.bold("Latest production url"), colors.blue.bold("Link"), colors.blue.bold("Updated")])
+                    .body(projects)
+                    .render();
+                console.log("\n")
+            })
+        )
         .command('deployments', new Command()
             .description("Get deployments")
             .action(async () => {
@@ -66,9 +109,9 @@ export default function vercel() {
                     .alias('ls')
                     .option("-p, --project [string]", "Project name or id")
                     .action(async (opts) => {
-                        console.log('opts', opts)
                         const VERCEL_TOKEN = Deno.env.get("VERCEL_ACCESS_TOKEN")
                         let project_id
+
                         try {
                             if (opts.project) {
                                 project_id = opts.project
@@ -104,6 +147,7 @@ export default function vercel() {
                     .option("-b, --branch [name:string]", "Assign to specific git branch")
                     .action(async ({ redirect, branch, project }, domain_name) => {
                         const VERCEL_TOKEN = Deno.env.get("VERCEL_ACCESS_TOKEN")
+
                         let project_id
 
                         try {

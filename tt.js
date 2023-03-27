@@ -24,7 +24,6 @@ if (login) {
         Deno.env.set('VERCEL_ACCESS_TOKEN', login.vercel_token)
 }
 
-//console.log('login', login)
 let project
 if (await exists('./tictapp.json')) {
     const cfg = await getJson(`./tictapp.json`)
@@ -33,10 +32,6 @@ if (await exists('./tictapp.json')) {
         Deno.env.set('PROJECT_REF', project.ref)
     }
 }
-
-
-if (!Deno.env.get("FUNCTIONS_DOMAIN"))
-    Deno.env.set("FUNCTIONS_DOMAIN", 'tictapp.fun')
 
 
 const tt = new Command()
@@ -60,7 +55,7 @@ https://github.com/tictapp/cli`)
     //.meta('Account', login ? login.profile.primary_email : 'Unauthorized')
     .globalOption("-d, --debug", "Enable debug output.")
     .globalOption("-w, --workdir [path:file]", "Specify project working directory", {
-        default: './',
+        //default: './',
         async action(options) {
             try {
                 Deno.chdir(options.workdir)
