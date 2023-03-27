@@ -2,4 +2,3 @@
 .env.defaults
 tictapp.json
 node_modules
-examples/vercel/tt-sk-app1
