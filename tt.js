@@ -49,7 +49,7 @@ if (project) {
 
 tt.meta('Workdir', colors.dim(Deno.cwd()))
 
-tt.description(`tictapp command line interface
+tt.description(`The tictapp command line interface
 https://github.com/tictapp/cli`)
 
     //.meta('Account', login ? login.profile.primary_email : 'Unauthorized')
