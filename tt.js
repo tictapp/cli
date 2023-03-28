@@ -91,7 +91,7 @@ https://github.com/tictapp/cli`)
         return;
     })
 
-    .command('login', loginCommand())
+    .command('login', loginCommand)
     .command('whoami', whoamiCommand)
 
     .command('link', linkCommand())
