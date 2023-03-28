@@ -1,5 +1,4 @@
 import { join } from "./deps.js";
-import { getVersions } from "./upgrade.js";
 import { API as StudioAPI } from "./api_studio.js";
 import { Select } from "./deps.js";
 
@@ -31,22 +30,6 @@ export async function getLogin() {
         return JSON.parse(loginInfoJson)
     }
     return null
-}
-
-export async function fetchReleases() {
-    try {
-        const { latest } = await getVersions();
-        const updateInfo = { lastFetched: Date.now(), latest };
-        const { updatePath, configDir } = getConfigPaths();
-        await Deno.mkdir(configDir, { recursive: true });
-        await Deno.writeFile(
-            updatePath,
-            new TextEncoder().encode(JSON.stringify(updateInfo, null, 2)),
-        );
-    } catch (_) {
-        // We will try again later when the fetch isn't successful,
-        // so we shouldn't report errors.
-    }
 }
 
 export async function getJson(filePath) {
