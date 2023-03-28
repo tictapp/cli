@@ -5,11 +5,14 @@ import { getLogin, getJson, exists } from "./helpers.js";
 import projectsCommand from './projectsCommand/index.js'
 import functionsCommand from "./functionsCommand/index.js";
 
-import statusCommand from './statusCommand/index.js'
 import loginCommand from './loginCommand/index.js'
 import linkCommand from './linkCommand/index.js'
 import genCommand from './genCommand/index.js'
 import vercelCommand from './vercelCommand/index.js'
+
+
+// new
+import whoamiCommand from './whoamiCommand/index.js'
 
 
 const login = await getLogin()
@@ -89,8 +92,9 @@ https://github.com/tictapp/cli`)
     })
 
     .command('login', loginCommand())
+    .command('whoami', whoamiCommand)
+
     .command('link', linkCommand())
-    .command('status', statusCommand())
     .command('gen', genCommand())
     .command('vercel', vercelCommand())
 
