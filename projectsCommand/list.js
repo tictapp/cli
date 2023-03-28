@@ -4,6 +4,7 @@ import { createClient } from "../api_studio.js";
 export default function projectsList() {
     return new Command()
         .name("list")
+        .alias("ls")
         .description("List all tictapp projects the logged-in user can access.")
         .action(async () => {
 

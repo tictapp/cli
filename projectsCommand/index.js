@@ -4,20 +4,15 @@ import projectsNew from "./new.js";
 import projectsInfoCommand from "./projectsInfoCommand.js";
 import projectsTypesCommand from "./projectsTypesCommand.js";
 
-export default function projects() {
-
-    return new Command()
-        .name("projects")
-        .description("Manage tictapp projects")
-        .arguments("[command]")
-        .action(function (...a) {
-            console.log('action', a)
-            this.showHelp();
-            return;
-        })
-        .command('info', projectsInfoCommand())
-        .command('list', projectsList())
-        .command('new', projectsNew())
-        .command('types', projectsTypesCommand())
-
-}
+export default new Command()
+    .name("projects")
+    .description("Manage tictapp projects")
+    .arguments("[command]")
+    .action(function (...a) {
+        this.showHelp();
+        return;
+    })
+    .command('info', projectsInfoCommand())
+    .command('list', projectsList())
+    .command('new', projectsNew())
+    .command('types', projectsTypesCommand())

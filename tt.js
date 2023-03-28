@@ -2,18 +2,23 @@ import { Command, ValidationError, CompletionsCommand, UpgradeCommand, DenoLandP
 import { VERSION } from './version.js'
 import { getLogin, getJson, exists } from "./helpers.js";
 
-import projectsCommand from './projectsCommand/index.js'
-import functionsCommand from "./functionsCommand/index.js";
 
+// account
 import loginCommand from './loginCommand/index.js'
-import linkCommand from './linkCommand/index.js'
-import genCommand from './genCommand/index.js'
-import vercelCommand from './vercelCommand/index.js'
-
-
-// new
 import whoamiCommand from './whoamiCommand/index.js'
 
+// supabase projects
+import projectsCommand from './projectsCommand/index.js'
+
+// deno projects
+import functionsCommand from "./functionsCommand/index.js";
+
+// vercel projects
+import vercelCommand from './vercelCommand/index.js'
+
+// tools
+import linkCommand from './linkCommand/index.js'
+import genCommand from './genCommand/index.js'
 
 const login = await getLogin()
 
@@ -90,16 +95,16 @@ https://github.com/tictapp/cli`)
         this.showHelp();
         return;
     })
-
+    // account
     .command('login', loginCommand)
     .command('whoami', whoamiCommand)
-
-    .command('link', linkCommand())
-    .command('gen', genCommand())
-    .command('vercel', vercelCommand())
-
-    .command('projects', projectsCommand())
-    .command('functions', functionsCommand())
+    // projects
+    .command('projects', projectsCommand)
+    .command('functions', functionsCommand)
+    .command('vercel', vercelCommand)
+    // tools
+    .command('link', linkCommand)
+    .command('gen', genCommand)
 
     .command("completions", new CompletionsCommand())
     .command("upgrade", new UpgradeCommand({
