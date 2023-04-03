@@ -1,3 +1,10 @@
+## [1.31.2](https://github.com/tictapp/cli/compare/v1.31.1...v1.31.2) (2023-04-03)
+
+
+### Bug Fixes
+
+* **vercelCommand:** update time_ago dependency to v1 ([89ffcf5](https://github.com/tictapp/cli/commit/89ffcf5ea352f692999d2ff5308e6fea5bb3158e))
+
 ## [1.31.1](https://github.com/tictapp/cli/compare/v1.31.0...v1.31.1) (2023-03-28)
 
 
