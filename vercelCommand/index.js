@@ -5,6 +5,7 @@ import { Table } from "../deps.js";
 import { timeAgo } from "https://deno.land/x/time_ago/mod.ts";
 
 function _action(_, cmd) {
+    console.log('vercel action', cmd)
     if (cmd) {
         throw new ValidationError(`Invalid command: "${cmd}"`)
     }
@@ -35,6 +36,14 @@ async function getProjectEnvs(project_id, opts) {
     return result
 }
 
+
+function checkLogin() {
+    // flTMn9dZrdxRbJ83pQ7mAogD
+    if (!Deno.env.get("VERCEL_ACCESS_TOKEN")) {
+        throw new ValidationError(`Login to vercel required`)
+    }
+}
+
 export default new Command()
     .name("vercel")
     .description("Vercel management api")
@@ -43,6 +52,9 @@ export default new Command()
     .command('projects', new Command()
         .description("Get projects")
         .action(async () => {
+
+            checkLogin()
+
             const res = await fetch(
                 'https://api.vercel.com/v6/projects',
                 {
