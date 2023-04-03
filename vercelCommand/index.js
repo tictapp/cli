@@ -2,7 +2,7 @@ import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
 import { ValidationError, colors } from "../deps.js";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { Table } from "../deps.js";
-import { timeAgo } from "https://deno.land/x/time_ago/mod.ts";
+import { timeAgo } from "https://deno.land/x/time_ago@v1/mod.ts";
 
 function _action(_, cmd) {
     console.log('vercel action', cmd)
@@ -208,7 +208,7 @@ export default new Command()
                 //.option("--decrypt [boolean]", "Return decrypted value")
                 .action(async (opts) => {
                     console.log(opts)
-                    const VERCEL_TOKEN = Deno.env.get("VERCEL_ACCESS_TOKEN")
+
                     let project_id
                     try {
                         if (opts.project) {
