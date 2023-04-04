@@ -29,10 +29,13 @@ export default function projectsInfoCommand() {
 
             console.log(colors.yellow.dim.italic(sb_cmd))
 
+            await Deno.remove(filepath).catch(() => { })
+
             const f = Deno.openSync(filepath, {
                 read: true,
                 write: true,
-                create: true
+                create: true,
+                append: false
             })
 
             const p = Deno.run({
@@ -43,6 +46,7 @@ export default function projectsInfoCommand() {
                     "typescript",
                     "--db-url",
                     dbUri,
+
                 ],
                 stdout: f.rid
             });

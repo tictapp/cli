@@ -126,7 +126,7 @@ export default new Command()
                         if (opts.project) {
                             project_id = opts.project
                         } else {
-                            project_id = (await import(Deno.cwd() + "/.vercel/project.json", {
+                            project_id = (await import("./.vercel/project.json", {
                                 assert: { type: "json" },
                             }))?.default?.projectId;
                         }
