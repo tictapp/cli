@@ -3,6 +3,7 @@ import { ValidationError, colors } from "../deps.js";
 import { load } from "https://deno.land/std@0.177.0/dotenv/mod.ts";
 import { Table } from "../deps.js";
 import { timeAgo } from "https://deno.land/x/time_ago@v1/mod.ts";
+import { getJson, selectVercelProject } from "../helpers.js";
 
 function _action(_, cmd) {
     console.log('vercel action', cmd)
@@ -41,6 +42,16 @@ function checkLogin() {
     // flTMn9dZrdxRbJ83pQ7mAogD
     if (!Deno.env.get("VERCEL_ACCESS_TOKEN")) {
         throw new ValidationError(`Login to vercel required`)
+    }
+}
+
+async function getProjectId() {
+    checkLogin()
+    try {
+        const { projectId } = await getJson("./.vercel/project.json")
+        return projectId
+    } catch (e) {
+        return await selectVercelProject()
     }
 }
 
@@ -126,9 +137,7 @@ export default new Command()
                         if (opts.project) {
                             project_id = opts.project
                         } else {
-                            project_id = (await import("./.vercel/project.json", {
-                                assert: { type: "json" },
-                            }))?.default?.projectId;
+                            project_id = await getProjectId()
                         }
 
                         const res = await fetch(`https://api.vercel.com/v9/projects/${project_id}/domains`, {
@@ -164,9 +173,7 @@ export default new Command()
                         if (project) {
                             project_id = project
                         } else {
-                            project_id = (await import(Deno.cwd() + "/.vercel/project.json", {
-                                assert: { type: "json" },
-                            }))?.default?.projectId;
+                            project_id = await getProjectId()
                         }
                         const res = await fetch(`https://api.vercel.com/v9/projects/${project_id}/domains`, {
                             body: JSON.stringify({
@@ -214,9 +221,7 @@ export default new Command()
                         if (opts.project) {
                             project_id = opts.project
                         } else {
-                            project_id = (await import(Deno.cwd() + "/.vercel/project.json", {
-                                assert: { type: "json" },
-                            }))?.default?.projectId;
+                            project_id = await getProjectId()
                         }
 
                         const result = await getProjectEnvs(project_id, opts)
@@ -245,9 +250,7 @@ export default new Command()
                         if (project) {
                             project_id = project
                         } else {
-                            project_id = (await import(Deno.cwd() + "/.vercel/project.json", {
-                                assert: { type: "json" },
-                            }))?.default?.projectId;
+                            project_id = await getProjectId()
                         }
 
                         const envObj = await load({

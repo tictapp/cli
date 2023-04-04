@@ -67,3 +67,35 @@ export async function selectProject() {
         options: studio_projects.map(o => ({ name: `${o.ref} - ${o.name} (${o.status})`, value: o.ref, url: `https://${o.ref}.tictapp.io`, updated: o.updated_at })),
     });
 }
+
+export async function selectVercelProject() {
+    const res = await fetch(
+        'https://api.vercel.com/v6/projects',
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${Deno.env.get("VERCEL_ACCESS_TOKEN")}`,
+            }
+        }
+    );
+    const result = await res.json()
+    //console.log(result)
+    const projects = result.projects.map(({ name, link, latestDeployments, updatedAt, id, teamId }) => {
+        const deployments = latestDeployments.map(({ url, target, alias }) => {
+            return {
+                url,
+                target,
+                alias
+            }
+        })
+        const latestDeployment = deployments.shift()
+
+        return { name, link, latestDeployment, updatedAt, id, teamId }
+    })
+
+    return await Select.prompt({
+        message: "Select project to continue",
+        search: true,
+        options: projects.map(o => ({ name: `${o.name} - https://${o.latestDeployment.alias.shift()}`, value: o.name })),
+    });
+}
