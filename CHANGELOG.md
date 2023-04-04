@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/tictapp/cli/compare/v1.31.2...v1.31.3) (2023-04-04)
+
+
+### Bug Fixes
+
+* **projectsTypesCommand.js:** add append: false option to Deno.openSync() call ([1bdfe10](https://github.com/tictapp/cli/commit/1bdfe103b2d41079b285b1289cb650016f886922))
+
 ## [1.31.2](https://github.com/tictapp/cli/compare/v1.31.1...v1.31.2) (2023-04-03)
 
 
