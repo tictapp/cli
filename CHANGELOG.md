@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/tictapp/cli/compare/v1.31.3...v1.32.0) (2023-04-04)
+
+
+### Features
+
+* **helpers.js:** add function to select Vercel project and prompt user to select a project from the list ([3011fe1](https://github.com/tictapp/cli/commit/3011fe1ebc94099559ca5227c813f49436ddbfdf))
+
 ## [1.31.3](https://github.com/tictapp/cli/compare/v1.31.2...v1.31.3) (2023-04-04)
 
 
